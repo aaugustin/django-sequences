@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Sequence',
             fields=[
-                ('name', models.CharField(max_length=40, primary_key=True, serialize=False, verbose_name='name')),
+                ('name', models.CharField(max_length=100, primary_key=True, serialize=False, verbose_name='name')),
                 ('last', models.PositiveIntegerField(verbose_name='last value')),
             ],
             options={
