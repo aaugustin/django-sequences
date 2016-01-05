@@ -1,28 +1,9 @@
-"""
-Sequential (gap-less) values generation on PostgreSQL.
-
-SERIAL fields aren't guaranteed to be sequential. If a transaction attempts to
-insert a row and then is rolled back, the sequence counter isn't rolled back,
-for performance reasons, creating a gap in the sequence. This is a problem for
-some use cases such as accounting.
-
-INTEGER PRIMARY KEY AUTOINCREMENT fields on SQLite don't exhibit this problem.
-The author doesn't know if it happens on MySQL or Oracle and didn't research
-whether this application would solve it.
-
-"""
-
 from django.db import router, transaction
 
 
-def get_next_value(sequence_name="default", initial_value=1, nowait=False):
+def get_next_value(sequence_name='default', initial_value=1, nowait=False):
     """
     Return the next value for a given sequence.
-
-    All database transactions that call this function will be serialized.
-    Keep such transactions short to minimize the impact or performance.
-    Pass nowait=False if you'd rather get an exception than wait when
-    something else holds the lock.
 
     """
     # Inner import because models cannot be imported before their application.
