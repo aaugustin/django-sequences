@@ -41,7 +41,7 @@ Install django-sequences::
 
 Add it to the list of applications in your project's settings::
 
-    INSTALLED_APPS += ['sequences']
+    INSTALLED_APPS += ['sequences.apps.SequencesConfig']
 
 Run migrations::
 
