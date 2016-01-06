@@ -122,6 +122,11 @@ MySQL won't support the ``nowait`` parameter.
 Changelog
 =========
 
+1.1
+---
+
+* Add translations.
+
 1.0
 ---
 
