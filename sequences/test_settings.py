@@ -12,3 +12,5 @@ DATABASES = {
 INSTALLED_APPS = ['sequences']
 
 SECRET_KEY = 'whatever'
+
+ROOT_URLCONF = []
