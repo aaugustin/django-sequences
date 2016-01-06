@@ -28,6 +28,11 @@ setuptools.setup(
         'sequences',
         'sequences.migrations',
     ],
+    package_data={
+        'sequences': [
+            'locale/*/LC_MESSAGES/*',
+        ],
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
