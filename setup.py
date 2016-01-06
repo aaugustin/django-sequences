@@ -17,7 +17,7 @@ with open(README) as f:
 
 setuptools.setup(
     name='django-sequences',
-    version='1.0',
+    version='1.0.1',
     author='Aymeric Augustin',
     author_email='aymeric.augustin@m4x.org',
     url='https://github.com/aaugustin/django-sequences',
@@ -26,6 +26,7 @@ setuptools.setup(
     download_url='http://pypi.python.org/pypi/django-sequences',
     packages=[
         'sequences',
+        'sequences.migrations',
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
