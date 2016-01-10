@@ -1,5 +1,6 @@
 export PYTHONPATH:=.:$(PYTHONPATH)
-export DJANGO_SETTINGS_MODULE:=sequences.test_settings
 
-test:
-	django-admin test sequences
+test: test_postgresql
+
+test_%:
+	DJANGO_SETTINGS_MODULE=sequences.$@_settings django-admin test sequences
