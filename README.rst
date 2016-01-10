@@ -4,15 +4,15 @@ django-sequences
 The problem
 ===========
 
-On PostgreSQL, ``SERIAL`` columns aren't guaranteed to be sequential.
+Django's default, implicit primary keys aren't guaranteed to be sequential.
 
 If a transaction inserts a row and then is rolled back, the sequence counter
-isn't rolled back for performance reasons, creating a gap in the sequence.
+isn't rolled back for performance reasons, creating a gap in primary keys.
 
-Django's default, implicit primary keys are backed by ``SERIAL`` columns.
-Usually they're sequential but this problem can create unexpected gaps.
+This can cause compliance issues for some use cases such as accounting.
 
-This is a problem for some use cases such as accounting.
+This risk isn't well known. Since most transactions succeed, values look
+sequential. Gaps will only be revealed by audits.
 
 The solution
 ============
