@@ -1,13 +1,18 @@
 from django.db import router, transaction
 
 
-def get_next_value(sequence_name='default', initial_value=1, nowait=False):
+def get_next_value(
+        sequence_name='default', initial_value=1,
+        *, nowait=False, using=None):
     """
     Return the next value for a given sequence.
 
     """
     # Inner import because models cannot be imported before their application.
     from .models import Sequence
+
+    if using is None:
+        using = router.db_for_write(Sequence)
 
     # The current implementation makes two SQL queries (plus two for creating
     # and releasing a savepoint when the sequence is created). The same effect
@@ -24,8 +29,7 @@ def get_next_value(sequence_name='default', initial_value=1, nowait=False):
     # which isn't widely available yet. It could be implemented only when the
     # database supports it, based on django.db.connections[using].pg_version.
 
-    with transaction.atomic(using=router.db_for_write(Sequence),
-                            savepoint=False):
+    with transaction.atomic(using=using, savepoint=False):
         sequence, created = (
             Sequence.objects
                     .select_for_update(nowait=nowait)
