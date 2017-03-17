@@ -1,4 +1,13 @@
-from django.db import router, transaction
+from django.db import connections, router, transaction
+
+
+UPSERT_QUERY = """
+    INSERT INTO sequences_sequence (name, last)
+         VALUES (%s, %s)
+    ON CONFLICT (name)
+  DO UPDATE SET last = sequences_sequence.last + 1
+      RETURNING last
+"""
 
 
 def get_next_value(
@@ -17,33 +26,34 @@ def get_next_value(
     if using is None:
         using = router.db_for_write(Sequence)
 
-    # The current implementation makes two SQL queries (plus two for creating
-    # and releasing a savepoint when the sequence is created). The same effect
-    # could be achieved with a single query on PostgreSQL >= 9.5:
-    #
-    #   INSERT INTO sequences_sequence (name, last)
-    #        VALUES (E'default', 1)
-    #   ON CONFLICT (name)
-    # DO UPDATE SET last = sequences_sequence.last + 1
-    #     RETURNING last;
-    #
-    # That version would be more elegant and perhaps slightly faster. But it
-    # involves PostgreSQL-specific syntax and requires a version of PostgreSQL
-    # which isn't widely available yet. It could be implemented only when the
-    # database supports it, based on django.db.connections[using].pg_version.
+    connection = connections[using]
 
-    with transaction.atomic(using=using, savepoint=False):
-        sequence, created = (
-            Sequence.objects
-                    .select_for_update(nowait=nowait)
-                    .get_or_create(name=sequence_name,
-                                   defaults={'last': initial_value})
-        )
+    if (getattr(connection, 'pg_version', 0) >= 90500
+            and reset_value is None and not nowait):
 
-        if not created:
-            sequence.last += 1
-            if reset_value is not None and sequence.last >= reset_value:
-                sequence.last = initial_value
-            sequence.save()
+        # PostgreSQL ≥ 9.5 supports "upsert".
 
-        return sequence.last
+        with connection.cursor() as cursor:
+            cursor.execute(UPSERT_QUERY, [sequence_name, initial_value])
+            last, = cursor.fetchone()
+        return last
+
+    else:
+
+        # Other databases require making more database queries.
+
+        with transaction.atomic(using=using, savepoint=False):
+            sequence, created = (
+                Sequence.objects
+                        .select_for_update(nowait=nowait)
+                        .get_or_create(name=sequence_name,
+                                       defaults={'last': initial_value})
+            )
+
+            if not created:
+                sequence.last += 1
+                if reset_value is not None and sequence.last >= reset_value:
+                    sequence.last = initial_value
+                sequence.save()
+
+            return sequence.last

@@ -35,6 +35,7 @@ class SingleConnectionTestsMixin(object):
         with self.assertRaises(AssertionError):
             get_next_value('error', initial_value=1, reset_value=1)
 
+
 class SingleConnectionInAutocommitTests(SingleConnectionTestsMixin,
                                         TransactionTestCase):
     pass
