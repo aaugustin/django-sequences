@@ -25,6 +25,14 @@ class SingleConnectionTestsMixin(object):
         self.assertEqual(get_next_value('customers', initial_value=1000), 1001)
         self.assertEqual(get_next_value('customers'), 1002)
 
+    def test_max_value(self):
+        self.assertEqual(get_next_value('reference', 1, max_value=2), 1)
+        self.assertEqual(get_next_value('reference', 1, max_value=2), 2)
+        self.assertEqual(get_next_value('reference', 1, max_value=2), 1)
+
+    def test_max_value_smaller_then_initial(self):
+        with self.assertRaises(AssertionError):
+            get_next_value('error', 1, max_value=1)
 
 class SingleConnectionInAutocommitTests(SingleConnectionTestsMixin,
                                         TransactionTestCase):
@@ -292,6 +300,40 @@ class ConcurrencyTests(TransactionTestCase):
             ('two', 2),
             ('two', 'commit'),
             ('one', 'commit'),
+        ]
+
+        self.assertSequence(one, two, expected)
+
+    def test_max_value_commit(self):
+
+        def one(output):
+            with transaction.atomic():
+                output.append(('one', 'begin'))
+                value = get_next_value(max_value=2)
+                output.append(('one', value))
+                value2 = get_next_value(max_value=2)
+                output.append(('one', value2))
+                time.sleep(0.2)
+                output.append(('one', 'commit'))
+            connection.close()
+
+        def two(output):
+            time.sleep(0.1)
+            with transaction.atomic():
+                output.append(('two', 'begin'))
+                value = get_next_value(max_value=2)
+                output.append(('two', value))
+                output.append(('two', 'commit'))
+            connection.close()
+
+        expected = [
+            ('one', 'begin'),
+            ('one', 1),
+            ('one', 2),
+            ('two', 'begin'),
+            ('one', 'commit'),
+            ('two', 1),
+            ('two', 'commit'),
         ]
 
         self.assertSequence(one, two, expected)

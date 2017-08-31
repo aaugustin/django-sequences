@@ -3,13 +3,15 @@ from django.db import router, transaction
 
 def get_next_value(
         sequence_name='default', initial_value=1,
-        *, nowait=False, using=None):
+        *, nowait=False, using=None, max_value=None):
     """
     Return the next value for a given sequence.
 
     """
     # Inner import because models cannot be imported before their application.
     from .models import Sequence
+    if max_value:
+        assert initial_value < max_value
 
     if using is None:
         using = router.db_for_write(Sequence)
@@ -38,5 +40,7 @@ def get_next_value(
         )
         if not created:
             sequence.last += 1
+            if max_value and sequence.last > max_value:
+                sequence.last = initial_value
             sequence.save()
         return sequence.last
