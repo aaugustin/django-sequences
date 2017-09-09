@@ -80,6 +80,15 @@ transaction gets committed; as discussed above, if the transaction is rolled
 back, the generated value isn't consumed. It's also possible to initialize a
 sequence in a data migration and not use ``initial_value`` in actual code.
 
+Sequences can loop::
+
+    >>> get_next_value('seconds', initial_value=0, reset_value=60)
+
+When the sequence reaches ``reset_value``, it restarts at ``initial_value``.
+In other works, it generates ``reset_value - 2``, ``reset_value - 1``,
+``initial_value``, ``initial_value + 1``, etc. In that case, each call to
+``get_next_value`` must provide ``initial_value`` and ``reset_value``.
+
 Database transactions that call ``get_next_value`` for a given sequence are
 serialized. In other words, when you call ``get_next_value`` in a database
 transaction, other callers which attempt to get a value from the same sequence
@@ -100,7 +109,7 @@ current value is stored in the default database for writing to models of the
 
 To sum up, the complete signature of ``get_next_value`` is::
 
-    get_next_value(sequence_name='default', initial_value=1,
+    get_next_value(sequence_name='default', initial_value=1, reset_value=None,
                    *, nowait=False, using=None)
 
 Under the hood, it relies on the database's transactional integrity to
@@ -141,6 +150,11 @@ two databases will have independent counters in each database.
 
 Changelog
 =========
+
+2.1
+---
+
+* Provide looping sequences with ``reset_value``.
 
 2.0
 ---
