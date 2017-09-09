@@ -2,7 +2,7 @@ from django.db import router, transaction
 
 
 def get_next_value(
-        sequence_name='default', initial_value=1,
+        sequence_name='default', initial_value=1, reset_value=None,
         *, nowait=False, using=None):
     """
     Return the next value for a given sequence.
@@ -10,6 +10,9 @@ def get_next_value(
     """
     # Inner import because models cannot be imported before their application.
     from .models import Sequence
+
+    if reset_value is not None:
+        assert initial_value < reset_value
 
     if using is None:
         using = router.db_for_write(Sequence)
@@ -36,7 +39,11 @@ def get_next_value(
                     .get_or_create(name=sequence_name,
                                    defaults={'last': initial_value})
         )
+
         if not created:
             sequence.last += 1
+            if reset_value is not None and sequence.last >= reset_value:
+                sequence.last = initial_value
             sequence.save()
+
         return sequence.last

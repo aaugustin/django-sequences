@@ -25,6 +25,15 @@ class SingleConnectionTestsMixin(object):
         self.assertEqual(get_next_value('customers', initial_value=1000), 1001)
         self.assertEqual(get_next_value('customers'), 1002)
 
+    def test_reset_value(self):
+        self.assertEqual(get_next_value('reference', 0, reset_value=2), 0)
+        self.assertEqual(get_next_value('reference', 0, reset_value=2), 1)
+        self.assertEqual(get_next_value('reference', 0, 2), 0)
+        self.assertEqual(get_next_value('reference', 0, 2), 1)
+
+    def test_reset_value_smaller_than_initial_value(self):
+        with self.assertRaises(AssertionError):
+            get_next_value('error', initial_value=1, reset_value=1)
 
 class SingleConnectionInAutocommitTests(SingleConnectionTestsMixin,
                                         TransactionTestCase):
