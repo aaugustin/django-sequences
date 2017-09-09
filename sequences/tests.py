@@ -304,37 +304,3 @@ class ConcurrencyTests(TransactionTestCase):
         ]
 
         self.assertSequence(one, two, expected)
-
-    def test_max_value_commit(self):
-
-        def one(output):
-            with transaction.atomic():
-                output.append(('one', 'begin'))
-                value = get_next_value(max_value=2)
-                output.append(('one', value))
-                value2 = get_next_value(max_value=2)
-                output.append(('one', value2))
-                time.sleep(0.2)
-                output.append(('one', 'commit'))
-            connection.close()
-
-        def two(output):
-            time.sleep(0.1)
-            with transaction.atomic():
-                output.append(('two', 'begin'))
-                value = get_next_value(max_value=2)
-                output.append(('two', value))
-                output.append(('two', 'commit'))
-            connection.close()
-
-        expected = [
-            ('one', 'begin'),
-            ('one', 1),
-            ('one', 2),
-            ('two', 'begin'),
-            ('one', 'commit'),
-            ('two', 1),
-            ('two', 'commit'),
-        ]
-
-        self.assertSequence(one, two, expected)
