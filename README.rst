@@ -151,6 +151,11 @@ two databases will have independent counters in each database.
 Changelog
 =========
 
+2.2
+---
+
+* Optimized performance on PostgreSQL ≥ 9.5.
+
 2.1
 ---
 
