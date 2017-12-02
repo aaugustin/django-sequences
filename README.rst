@@ -35,6 +35,8 @@ designed to be used as follows::
 Installation
 ============
 
+django-sequences is compatible with Django 1.11 (LTS) and 2.0.
+
 Install django-sequences::
 
     $ pip install django-sequences
