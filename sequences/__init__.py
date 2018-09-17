@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.db import connections, router, transaction
 
 
@@ -11,8 +12,7 @@ UPSERT_QUERY = """
 
 
 def get_next_value(
-        sequence_name='default', initial_value=1, reset_value=None,
-        *, nowait=False, using=None):
+        sequence_name='default', initial_value=1, reset_value=None, nowait=False, using=None, *args, **kwargs):
     """
     Return the next value for a given sequence.
 
