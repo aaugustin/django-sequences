@@ -1,8 +1,9 @@
 import threading
 import time
+import unittest
 
-from django.db import OperationalError, connection, transaction
-from django.test import TestCase, TransactionTestCase
+from django.db import DatabaseError, connection, transaction
+from django.test import TestCase, TransactionTestCase, skipUnlessDBFeature
 
 from . import get_next_value
 
@@ -46,6 +47,10 @@ class SingleConnectionInTransactionTests(SingleConnectionTestsMixin,
     pass
 
 
+@unittest.skipIf(
+    connection.vendor == 'sqlite',
+    "SQLite doesn't support concurrent writes"
+)
 class ConcurrencyTests(TransactionTestCase):
 
     def assertSequence(self, one, two, expected):
@@ -61,8 +66,8 @@ class ConcurrencyTests(TransactionTestCase):
     def test_first_access_with_commit(self):
 
         def one(output):
+            output.append(('one', 'begin'))
             with transaction.atomic():
-                output.append(('one', 'begin'))
                 value = get_next_value()
                 output.append(('one', value))
                 time.sleep(0.2)
@@ -71,8 +76,8 @@ class ConcurrencyTests(TransactionTestCase):
 
         def two(output):
             time.sleep(0.1)
+            output.append(('two', 'begin'))
             with transaction.atomic():
-                output.append(('two', 'begin'))
                 value = get_next_value()
                 output.append(('two', value))
                 output.append(('two', 'commit'))
@@ -94,8 +99,8 @@ class ConcurrencyTests(TransactionTestCase):
         get_next_value()
 
         def one(output):
+            output.append(('one', 'begin'))
             with transaction.atomic():
-                output.append(('one', 'begin'))
                 value = get_next_value()
                 output.append(('one', value))
                 time.sleep(0.2)
@@ -104,8 +109,8 @@ class ConcurrencyTests(TransactionTestCase):
 
         def two(output):
             time.sleep(0.1)
+            output.append(('two', 'begin'))
             with transaction.atomic():
-                output.append(('two', 'begin'))
                 value = get_next_value()
                 output.append(('two', value))
                 output.append(('two', 'commit'))
@@ -125,8 +130,8 @@ class ConcurrencyTests(TransactionTestCase):
     def test_first_access_with_rollback(self):
 
         def one(output):
+            output.append(('one', 'begin'))
             with transaction.atomic():
-                output.append(('one', 'begin'))
                 value = get_next_value()
                 output.append(('one', value))
                 time.sleep(0.2)
@@ -136,8 +141,8 @@ class ConcurrencyTests(TransactionTestCase):
 
         def two(output):
             time.sleep(0.1)
+            output.append(('two', 'begin'))
             with transaction.atomic():
-                output.append(('two', 'begin'))
                 value = get_next_value()
                 output.append(('two', value))
                 output.append(('two', 'commit'))
@@ -159,8 +164,8 @@ class ConcurrencyTests(TransactionTestCase):
         get_next_value()
 
         def one(output):
+            output.append(('one', 'begin'))
             with transaction.atomic():
-                output.append(('one', 'begin'))
                 value = get_next_value()
                 output.append(('one', value))
                 time.sleep(0.2)
@@ -170,8 +175,8 @@ class ConcurrencyTests(TransactionTestCase):
 
         def two(output):
             time.sleep(0.1)
+            output.append(('two', 'begin'))
             with transaction.atomic():
-                output.append(('two', 'begin'))
                 value = get_next_value()
                 output.append(('two', value))
                 output.append(('two', 'commit'))
@@ -188,55 +193,89 @@ class ConcurrencyTests(TransactionTestCase):
 
         self.assertSequence(one, two, expected)
 
+    @skipUnlessDBFeature('has_select_for_update_nowait')
     def test_first_access_nowait(self):
 
         def one(output):
+            output.append(('one', 'begin'))
             with transaction.atomic():
                 value = get_next_value()
                 output.append(('one', value))
                 time.sleep(0.5)
+                output.append(('one', 'commit'))
             connection.close()
 
-        # One might expect an OperationalError here, but PostgreSQL doesn't
-        # appear to report an error in this case.
+        # SELECT ... FOR UPDATE doesn't select any row to lock. In this case,
+        # behavior depends on the database (and perhaps the isolation level).
 
-        def two(output):
-            time.sleep(0.1)
-            with transaction.atomic():
-                value = get_next_value(nowait=True)
-                output.append(('two', value))
-            connection.close()
+        if connection.vendor != 'mysql':
 
-        expected = [
-            ('one', 1),
-            ('two', 2),
-        ]
+            def two(output):
+                time.sleep(0.1)
+                with transaction.atomic():
+                    output.append(('two', 'begin'))
+                    value = get_next_value(nowait=True)
+                    output.append(('two', value))
+                    output.append(('two', 'commit'))
+                connection.close()
+
+            expected = [
+                ('one', 'begin'),
+                ('one', 1),
+                ('two', 'begin'),
+                ('one', 'commit'),
+                ('two', 2),
+                ('two', 'commit'),
+            ]
+
+        else:
+
+            def two(output):
+                time.sleep(0.1)
+                with self.assertRaises(DatabaseError):
+                    with transaction.atomic():
+                        output.append(('two', 'begin'))
+                        value = get_next_value(nowait=True)
+                        output.append(('two', value))   # shouldn't be reached
+                connection.close()
+
+            expected = [
+                ('one', 'begin'),
+                ('one', 1),
+                ('two', 'begin'),
+                ('one', 'commit'),
+            ]
 
         self.assertSequence(one, two, expected)
 
+    @skipUnlessDBFeature('has_select_for_update_nowait')
     def test_later_access_nowait(self):
 
         get_next_value()
 
         def one(output):
+            output.append(('one', 'begin'))
             with transaction.atomic():
                 value = get_next_value()
                 output.append(('one', value))
                 time.sleep(0.5)
+                output.append(('one', 'commit'))
             connection.close()
 
         def two(output):
             time.sleep(0.1)
-            with self.assertRaises(OperationalError):
+            output.append(('two', 'begin'))
+            with self.assertRaises(DatabaseError):
                 with transaction.atomic():
                     value = get_next_value(nowait=True)
                     output.append(('two', value))   # shouldn't be reached
-            output.append(('two', 'exc'))
             connection.close()
 
         expected = [
+            ('one', 'begin'),
             ('one', 2),
-            ('two', 'exc'),
+            ('two', 'begin'),
+            ('one', 'commit'),
         ]
 
         self.assertSequence(one, two, expected)
@@ -244,8 +283,8 @@ class ConcurrencyTests(TransactionTestCase):
     def test_first_access_to_different_sequences(self):
 
         def one(output):
+            output.append(('one', 'begin'))
             with transaction.atomic():
-                output.append(('one', 'begin'))
                 value = get_next_value('one')
                 output.append(('one', value))
                 time.sleep(0.2)
@@ -254,8 +293,8 @@ class ConcurrencyTests(TransactionTestCase):
 
         def two(output):
             time.sleep(0.1)
+            output.append(('two', 'begin'))
             with transaction.atomic():
-                output.append(('two', 'begin'))
                 value = get_next_value('two')
                 output.append(('two', value))
                 output.append(('two', 'commit'))
@@ -278,8 +317,8 @@ class ConcurrencyTests(TransactionTestCase):
         get_next_value('two')
 
         def one(output):
+            output.append(('one', 'begin'))
             with transaction.atomic():
-                output.append(('one', 'begin'))
                 value = get_next_value('one')
                 output.append(('one', value))
                 time.sleep(0.2)
@@ -288,8 +327,8 @@ class ConcurrencyTests(TransactionTestCase):
 
         def two(output):
             time.sleep(0.1)
+            output.append(('two', 'begin'))
             with transaction.atomic():
-                output.append(('two', 'begin'))
                 value = get_next_value('two')
                 output.append(('two', value))
                 output.append(('two', 'commit'))

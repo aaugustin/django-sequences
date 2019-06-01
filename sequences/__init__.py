@@ -1,6 +1,5 @@
 from django.db import connections, router, transaction
 
-
 UPSERT_QUERY = """
     INSERT INTO sequences_sequence (name, last)
          VALUES (%s, %s)
@@ -28,8 +27,13 @@ def get_next_value(
 
     connection = connections[using]
 
-    if (getattr(connection, 'pg_version', 0) >= 90500
-            and reset_value is None and not nowait):
+    if (
+        connection.vendor == 'postgresql'
+        # connection.features.is_postgresql_9_5 when dropping Django 1.11.
+        and getattr(connection, 'pg_version', 0) >= 90500
+        and reset_value is None
+        and not nowait
+    ):
 
         # PostgreSQL ≥ 9.5 supports "upsert".
 

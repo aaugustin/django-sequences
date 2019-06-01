@@ -97,6 +97,8 @@ transaction, other callers which attempt to get a value from the same sequence
 will block until the transaction completes, either with a commit or a rollback.
 You should keep such transactions short to minimize the impact on performance.
 
+(This is why databases default to a faster behavior that may create gaps.)
+
 Passing ``nowait=True`` will cause ``get_next_value`` to raise an exception
 instead of blocking. This will rarely be useful. Also it doesn't work for the
 first call. (Arguably this is a bug. Patches welcome.)
@@ -107,7 +109,7 @@ another.
 Finally, passing ``using='...'`` allows selecting the database on which the
 current sequence value is stored. When this parameter isn't provided, the
 current value is stored in the default database for writing to models of the
-``sequences`` application. See below for details.
+``sequences`` application. See "Multiple databases" below for details.
 
 To sum up, the complete signature of ``get_next_value`` is::
 
@@ -126,15 +128,16 @@ You can run tests with::
 
 If you'd like to contribute, please open an issue or a pull request on GitHub!
 
-Other databases
-===============
+Database support
+================
 
-``INTEGER PRIMARY KEY AUTOINCREMENT`` fields on SQLite don't have this problem.
+django-sequences is tested on PostgreSQL, MySQL, Oracle, and SQLite.
 
-The author doesn't know if this problem can happens on MySQL or Oracle. If it
-does, then the current implementation of django-sequences should work. If you
-test this, please open an issue on GitHub to report your findings. Note that
-MySQL won't support the ``nowait`` parameter.
+MySQL only supports the ``nowait`` parameter when it's MariaDB ≥ 8.0.1.
+
+Applications that will only ever be deployed with an SQLite database don't
+need django-sequences because SQLite's ``INTEGER PRIMARY KEY AUTOINCREMENT``
+fields are guaranteed to be sequential.
 
 Multiple databases
 ==================
