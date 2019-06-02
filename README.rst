@@ -156,6 +156,12 @@ two databases will have independent counters in each database.
 Changelog
 =========
 
+2.3
+---
+
+* Tested on MySQL, SQLite and Oracle.
+* Optimized performance on MySQL.
+
 2.2
 ---
 
