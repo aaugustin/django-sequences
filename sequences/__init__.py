@@ -1,11 +1,25 @@
 from django.db import connections, router, transaction
 
-UPSERT_QUERY = """
-    INSERT INTO sequences_sequence (name, last)
-         VALUES (%s, %s)
-    ON CONFLICT (name)
-  DO UPDATE SET last = sequences_sequence.last + 1
-      RETURNING last
+
+POSTGRESQL_UPSERT = """
+        INSERT INTO sequences_sequence (name, last)
+             VALUES (%s, %s)
+        ON CONFLICT (name)
+      DO UPDATE SET last = sequences_sequence.last + 1
+          RETURNING last;
+"""
+
+MYSQL_UPSERT = """
+        INSERT INTO sequences_sequence (name, last)
+             VALUES (%s, %s)
+   ON DUPLICATE KEY
+             UPDATE last = sequences_sequence.last + 1
+"""
+
+SELECT = """
+             SELECT last
+               FROM sequences_sequence
+              WHERE name = %s
 """
 
 
@@ -36,15 +50,32 @@ def get_next_value(
     ):
 
         # PostgreSQL ≥ 9.5 supports "upsert".
+        # This is about 3x faster as the naive implementation.
 
         with connection.cursor() as cursor:
-            cursor.execute(UPSERT_QUERY, [sequence_name, initial_value])
+            cursor.execute(POSTGRESQL_UPSERT, [sequence_name, initial_value])
             last, = cursor.fetchone()
+        return last
+
+    elif (
+        connection.vendor == 'mysql'
+        and reset_value is None
+        and not nowait
+    ):
+
+        # MySQL supports "upsert" but not "returning".
+        # This is about 2x faster as the naive implementation.
+
+        with transaction.atomic(using=using, savepoint=False):
+            with connection.cursor() as cursor:
+                cursor.execute(MYSQL_UPSERT, [sequence_name, initial_value])
+                cursor.execute(SELECT, [sequence_name])
+                last, = cursor.fetchone()
         return last
 
     else:
 
-        # Other databases require making more database queries.
+        # Default, ORM-based implementation for all other cases.
 
         with transaction.atomic(using=using, savepoint=False):
             sequence, created = (
