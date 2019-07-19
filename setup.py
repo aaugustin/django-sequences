@@ -7,7 +7,7 @@ import setuptools
 
 root_dir = os.path.abspath(os.path.dirname(__file__))
 
-description = "Generate gap-less sequences of integer values."
+description = "Generate gapless sequences of integer values."
 with codecs.open(os.path.join(root_dir, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 

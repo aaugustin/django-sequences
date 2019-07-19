@@ -52,7 +52,7 @@ Run migrations::
 API
 ===
 
-``get_next_value`` generates a gap-less sequence of integer values::
+``get_next_value`` generates a gapless sequence of integer values::
 
     >>> get_next_value()
     1
