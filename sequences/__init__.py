@@ -122,3 +122,59 @@ def get_next_value(
                 sequence.save()
 
             return sequence.last
+
+
+class Sequence:
+    """
+    Generate a gapless sequence of integer values.
+
+    """
+    def __init__(
+        self,
+        sequence_name='default',
+        initial_value=1,
+        reset_value=None,
+        *,
+        using=None,
+    ):
+        if reset_value is not None:
+            assert initial_value < reset_value
+        self.sequence_name = sequence_name
+        self.initial_value = initial_value
+        self.reset_value = reset_value
+        self.using = using
+
+    def get_last_value(
+        self,
+    ):
+        """
+        Return the last value of the sequence.
+
+        """
+        return get_last_value(
+            self.sequence_name,
+            using=self.using,
+        )
+
+    def get_next_value(
+        self,
+        *,
+        nowait=False,
+    ):
+        """
+        Return the next value of the sequence.
+
+        """
+        return get_next_value(
+            self.sequence_name,
+            self.initial_value,
+            self.reset_value,
+            nowait=nowait,
+            using=self.using,
+        )
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.get_next_value()

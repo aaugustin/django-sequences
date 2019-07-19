@@ -182,6 +182,57 @@ The complete signature of ``get_last_value`` is::
 sequence generated but it makes no guarantees.** Concurrent calls to
 ``get_next_value`` can produce unexpected results.
 
+``Sequence``
+------------
+
+::
+
+    >>> from sequences import Sequence
+
+(not to be confused with ``sequences.models.Sequence``, a private API)
+
+Instances of this class store the parameters of ``get_next_value``. This
+reduces the risk of errors if the same sequence is used in multiple places.
+
+    >>> claim_ids = Sequence('claims')
+    >>> claim_ids.get_next_value()
+    1
+    >>> claim_ids.get_next_value()
+    2
+    >>> claim_ids.get_last_value()
+    2
+
+They're also infinite iterators:
+
+    >>> next(claim_ids)
+    3
+    >>> next(claim_ids)
+    4
+
+The complete API is::
+
+    Sequence(
+        sequence_name='default',
+        initial_value=1,
+        reset_value=None,
+        *,
+        using=None,
+    )
+
+    Sequence.get_next_value(
+        self,
+        *,
+        nowait=False
+    )
+
+    Sequence.get_last_value(
+        self,
+    )
+
+All parameters have the same meaning as in the ``get_next_value`` and
+``get_last_value`` functions.
+
+
 Contributing
 ============
 
@@ -222,7 +273,8 @@ Changelog
 2.4
 ---
 
-* Add ``get_last_value``.
+* Add the ``get_last_value`` function.
+* Add the ``Sequence`` class.
 
 2.3
 ---
