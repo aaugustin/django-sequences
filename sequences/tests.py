@@ -5,20 +5,27 @@ import unittest
 from django.db import DatabaseError, connection, transaction
 from django.test import TestCase, TransactionTestCase, skipUnlessDBFeature
 
-from . import get_next_value
+from . import get_last_value, get_next_value
 
 
 class SingleConnectionTestsMixin(object):
 
     def test_defaults(self):
+        self.assertEqual(get_last_value(), None)
         self.assertEqual(get_next_value(), 1)
+        self.assertEqual(get_last_value(), 1)
         self.assertEqual(get_next_value(), 2)
+        self.assertEqual(get_last_value(), 2)
         self.assertEqual(get_next_value(), 3)
 
     def test_sequence_name(self):
+        self.assertEqual(get_last_value('cases'), None)
         self.assertEqual(get_next_value('cases'), 1)
+        self.assertEqual(get_last_value('cases'), 1)
         self.assertEqual(get_next_value('cases'), 2)
+        self.assertEqual(get_last_value('invoices'), None)
         self.assertEqual(get_next_value('invoices'), 1)
+        self.assertEqual(get_last_value('invoices'), 1)
         self.assertEqual(get_next_value('invoices'), 2)
 
     def test_initial_value(self):

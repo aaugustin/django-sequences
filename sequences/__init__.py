@@ -1,5 +1,10 @@
 from django.db import connections, router, transaction
 
+SELECT = """
+             SELECT last
+               FROM sequences_sequence
+              WHERE name = %s
+"""
 
 POSTGRESQL_UPSERT = """
         INSERT INTO sequences_sequence (name, last)
@@ -16,16 +21,39 @@ MYSQL_UPSERT = """
              UPDATE last = sequences_sequence.last + 1
 """
 
-SELECT = """
-             SELECT last
-               FROM sequences_sequence
-              WHERE name = %s
-"""
+
+def get_last_value(
+    sequence_name='default',
+    *,
+    using=None,
+):
+    """
+    Return the last value for a given sequence.
+
+    """
+    # Inner import because models cannot be imported before their application.
+    from .models import Sequence
+
+    if using is None:
+        using = router.db_for_read(Sequence)
+
+    connection = connections[using]
+
+    with connection.cursor() as cursor:
+        cursor.execute(SELECT, [sequence_name])
+        result = cursor.fetchone()
+
+    return None if result is None else result[0]
 
 
 def get_next_value(
-        sequence_name='default', initial_value=1, reset_value=None,
-        *, nowait=False, using=None):
+    sequence_name='default',
+    initial_value=1,
+    reset_value=None,
+    *,
+    nowait=False,
+    using=None,
+):
     """
     Return the next value for a given sequence.
 
@@ -54,8 +82,9 @@ def get_next_value(
 
         with connection.cursor() as cursor:
             cursor.execute(POSTGRESQL_UPSERT, [sequence_name, initial_value])
-            last, = cursor.fetchone()
-        return last
+            result = cursor.fetchone()
+
+        return result[0]
 
     elif (
         connection.vendor == 'mysql'
@@ -70,8 +99,9 @@ def get_next_value(
             with connection.cursor() as cursor:
                 cursor.execute(MYSQL_UPSERT, [sequence_name, initial_value])
                 cursor.execute(SELECT, [sequence_name])
-                last, = cursor.fetchone()
-        return last
+                result = cursor.fetchone()
+
+        return result[0]
 
     else:
 
