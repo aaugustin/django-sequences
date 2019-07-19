@@ -159,13 +159,13 @@ Changelog
 2.3
 ---
 
-* Tested on MySQL, SQLite and Oracle.
-* Optimized performance on MySQL.
+* Optimize performance on MySQL.
+* Test on MySQL, SQLite and Oracle.
 
 2.2
 ---
 
-* Optimized performance on PostgreSQL ≥ 9.5.
+* Optimize performance on PostgreSQL ≥ 9.5.
 
 2.1
 ---
