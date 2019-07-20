@@ -96,18 +96,20 @@ Sequences can loop::
 When the sequence reaches ``reset_value``, it restarts at ``initial_value``.
 In other works, it generates ``reset_value - 2``, ``reset_value - 1``,
 ``initial_value``, ``initial_value + 1``, etc. In that case, each call to
-``get_next_value`` must provide ``initial_value`` and ``reset_value``.
+``get_next_value`` must provide ``initial_value`` when it isn't the default
+and ``reset_value``.
 
-Database transactions that call ``get_next_value`` for a given sequence are
-serialized. In other words, when you call ``get_next_value`` in a database
-transaction, other callers which attempt to get a value from the same sequence
-will block until the transaction completes, either with a commit or a rollback.
-You should keep such transactions short to minimize the impact on performance.
+**Database transactions that call** ``get_next_value`` **for a given sequence
+are serialized.** In other words, when you call ``get_next_value`` in a
+database transaction, other callers trying to get a value from the same
+sequence block until the transaction completes, either with a commit or a
+rollback. You should keep such transactions short to minimize the impact on
+performance.
 
-(This is why databases default to a faster behavior that may create gaps.)
+This is why databases default to a faster behavior that may create gaps.
 
-Passing ``nowait=True`` will cause ``get_next_value`` to raise an exception
-instead of blocking. This will rarely be useful. Also it doesn't work for the
+Passing ``nowait=True`` makes ``get_next_value`` raise an exception instead of
+blocking in this scenario. This is rarely useful. Also it doesn't work for the
 first call. (Arguably this is a bug. Patches welcome.)
 
 Calls to ``get_next_value`` for distinct sequences don't interact with one
@@ -130,7 +132,7 @@ To sum up, the complete signature of ``get_next_value`` is::
     )
 
 Under the hood, ``get_next_value`` relies on the database's transactional
-integrity to guarantee that each value will be returned exactly once.
+integrity to guarantee that each value is returned exactly once.
 
 ``get_last_value``
 ------------------
@@ -180,7 +182,7 @@ The complete signature of ``get_last_value`` is::
 
 ``get_last_value`` **is a convenient and fast way to tell how many values a
 sequence generated but it makes no guarantees.** Concurrent calls to
-``get_next_value`` can produce unexpected results.
+``get_next_value`` may produce unexpected results of ``get_last_value``.
 
 ``Sequence``
 ------------
@@ -191,8 +193,8 @@ sequence generated but it makes no guarantees.** Concurrent calls to
 
 (not to be confused with ``sequences.models.Sequence``, a private API)
 
-Instances of this class store the parameters of ``get_next_value``. This
-reduces the risk of errors if the same sequence is used in multiple places.
+This class stores parameters for a sequence and provides ``get_next_value``
+and ``get_last_value`` methods::
 
     >>> claim_ids = Sequence('claims')
     >>> claim_ids.get_next_value()
@@ -202,7 +204,10 @@ reduces the risk of errors if the same sequence is used in multiple places.
     >>> claim_ids.get_last_value()
     2
 
-They're also infinite iterators:
+This reduces the risk of errors when the same sequence is used in multiple
+places.
+
+Instances of ``Sequence`` are also infinite iterators::
 
     >>> next(claim_ids)
     3
