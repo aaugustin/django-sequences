@@ -15,7 +15,7 @@ msgid "name"
 msgstr "名前"
 
 msgid "last value"
-msgstr "最大数字"
+msgstr "最大値"
 
 msgid "sequence"
 msgstr "シーケンス"
