@@ -2,23 +2,23 @@ from django.db import connections, router, transaction
 
 SELECT = """
              SELECT last
-               FROM sequences_sequence
+               FROM {db_table}
               WHERE name = %s
 """
 
 POSTGRESQL_UPSERT = """
-        INSERT INTO sequences_sequence (name, last)
+        INSERT INTO {db_table} (name, last)
              VALUES (%s, %s)
         ON CONFLICT (name)
-      DO UPDATE SET last = sequences_sequence.last + 1
+      DO UPDATE SET last = {db_table}.last + 1
           RETURNING last;
 """
 
 MYSQL_UPSERT = """
-        INSERT INTO sequences_sequence (name, last)
+        INSERT INTO {db_table} (name, last)
              VALUES (%s, %s)
    ON DUPLICATE KEY
-             UPDATE last = sequences_sequence.last + 1
+             UPDATE last = {db_table}.last + 1
 """
 
 
@@ -38,9 +38,13 @@ def get_last_value(
         using = router.db_for_read(Sequence)
 
     connection = connections[using]
+    db_table = connection.ops.quote_name(Sequence._meta.db_table)
 
     with connection.cursor() as cursor:
-        cursor.execute(SELECT, [sequence_name])
+        cursor.execute(
+            SELECT.format(db_table=db_table),
+            [sequence_name]
+        )
         result = cursor.fetchone()
 
     return None if result is None else result[0]
@@ -68,6 +72,7 @@ def get_next_value(
         using = router.db_for_write(Sequence)
 
     connection = connections[using]
+    db_table = connection.ops.quote_name(Sequence._meta.db_table)
 
     if (
         connection.vendor == 'postgresql'
@@ -81,7 +86,10 @@ def get_next_value(
         # This is about 3x faster as the naive implementation.
 
         with connection.cursor() as cursor:
-            cursor.execute(POSTGRESQL_UPSERT, [sequence_name, initial_value])
+            cursor.execute(
+                POSTGRESQL_UPSERT.format(db_table=db_table),
+                [sequence_name, initial_value]
+            )
             result = cursor.fetchone()
 
         return result[0]
@@ -97,8 +105,14 @@ def get_next_value(
 
         with transaction.atomic(using=using, savepoint=False):
             with connection.cursor() as cursor:
-                cursor.execute(MYSQL_UPSERT, [sequence_name, initial_value])
-                cursor.execute(SELECT, [sequence_name])
+                cursor.execute(
+                    MYSQL_UPSERT.format(db_table=db_table),
+                    [sequence_name, initial_value]
+                )
+                cursor.execute(
+                    SELECT.format(db_table=db_table),
+                    [sequence_name]
+                )
                 result = cursor.fetchone()
 
         return result[0]
