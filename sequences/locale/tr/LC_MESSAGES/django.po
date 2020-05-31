@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-21 22:51+0300\n"
+"POT-Creation-Date: 2020-05-31 19:10+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: MEHMET KAYKISIZ <m.kaykisiz@gmail.com>\n"
 "Language: tr\n"
@@ -16,22 +16,23 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-#: sequences/apps.py:7
+
+#: apps.py:7
 msgid "Sequences"
-msgstr "Listeler"
+msgstr "Diziler"
 
-#: sequences/models.py:8
+#: models.py:8
 msgid "name"
-msgstr "ad"
+msgstr "isim"
 
-#: sequences/models.py:14
+#: models.py:14
 msgid "last value"
 msgstr "son değer"
 
-#: sequences/models.py:18
+#: models.py:18
 msgid "sequence"
-msgstr "liste"
+msgstr "dizi"
 
-#: sequences/models.py:19
+#: models.py:19
 msgid "sequences"
-msgstr "listeler"
+msgstr "diziler"
