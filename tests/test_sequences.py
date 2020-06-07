@@ -9,7 +9,7 @@ from django.test import TestCase, TransactionTestCase, skipUnlessDBFeature
 from sequences import Sequence, get_last_value, get_next_value
 
 
-class SingleConnectionTestsMixin(object):
+class SingleConnectionTestsMixin:
 
     def test_functions_defaults(self):
         self.assertEqual(get_last_value(), None)

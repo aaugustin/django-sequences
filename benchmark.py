@@ -39,5 +39,7 @@ t1 = time.perf_counter()
 
 assert set(VALUES) == set(range(1, LOOPS * THREADS + 1))
 
-print("{} loops x {} threads in {:.2f} seconds = {:.0f} values / second"
-      .format(LOOPS, THREADS, t1 - t0, LOOPS * THREADS / (t1 - t0)))
+print(
+    f"{LOOPS} loops x {THREADS} threads in {t1 - t0:.2f} seconds"
+    f" = {LOOPS * THREADS / (t1 - t0):.0f} values / second"
+)
