@@ -1,6 +1,6 @@
 import os
 
-from .test_settings import *  # noqa
+from .settings import *  # noqa
 
 DATABASES = {
     'default': {

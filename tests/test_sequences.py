@@ -6,7 +6,7 @@ import unittest
 from django.db import DatabaseError, connection, transaction
 from django.test import TestCase, TransactionTestCase, skipUnlessDBFeature
 
-from . import Sequence, get_last_value, get_next_value
+from sequences import Sequence, get_last_value, get_next_value
 
 
 class SingleConnectionTestsMixin(object):

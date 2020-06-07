@@ -45,4 +45,5 @@ setuptools.setup(
             'locale/*/LC_MESSAGES/*',
         ],
     },
+    package_dir={'': 'src'},
 )
