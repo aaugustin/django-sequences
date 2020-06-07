@@ -1,6 +1,6 @@
 # Usage:
-# PYTHONPATH=. DJANGO_SETTINGS_MODULE=sequences.test_postgresql_settings django-admin migrate
-# PYTHONPATH=. DJANGO_SETTINGS_MODULE=sequences.test_postgresql_settings python benchmark.py
+# DJANGO_SETTINGS_MODULE=tests.postgresql_settings python -m django migrate
+# DJANGO_SETTINGS_MODULE=tests.postgresql_settings python benchmark.py
 
 import threading
 import time

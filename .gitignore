@@ -1,5 +1,4 @@
-*.egg-info
 *.pyc
-build
 dist
-MANIFEST
+django_sequences.egg-info
+poetry.lock
