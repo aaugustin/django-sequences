@@ -25,7 +25,7 @@ MYSQL_UPSERT = """
 def get_last_value(
     sequence_name='default',
     *,
-    using=None,
+    using=None
 ):
     """
     Return the last value for a given sequence.
@@ -52,7 +52,7 @@ def get_next_value(
     reset_value=None,
     *,
     nowait=False,
-    using=None,
+    using=None
 ):
     """
     Return the next value for a given sequence.
@@ -135,7 +135,7 @@ class Sequence:
         initial_value=1,
         reset_value=None,
         *,
-        using=None,
+        using=None
     ):
         if reset_value is not None:
             assert initial_value < reset_value
@@ -159,7 +159,7 @@ class Sequence:
     def get_next_value(
         self,
         *,
-        nowait=False,
+        nowait=False
     ):
         """
         Return the next value of the sequence.
