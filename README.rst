@@ -26,13 +26,24 @@ be used as follows:
 .. code:: python
 
     from django.db import transaction
-
     from sequences import get_next_value
-
     from invoices.models import Invoice
 
     with transaction.atomic():
         Invoice.objects.create(number=get_next_value("invoice_numbers"))
+
+Or, if you'd rather use an object-oriented API:
+
+.. code:: python
+
+    from django.db import transaction
+    from sequences import Sequence
+    from invoices.models import Invoice
+
+    invoice_numbers = Sequence("invoice_numbers")
+
+    with transaction.atomic():
+        Invoice.objects.create(number=invoice_numbers.get_next_value())
 
 ``get_next_value`` relies on the database's transactional integrity to ensure
 that each value is returned exactly once. As a consequence, **the guarantees
