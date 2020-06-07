@@ -4,7 +4,10 @@ django-sequences
 The problem
 ===========
 
-Django's default, implicit primary keys aren't guaranteed to be sequential.
+By default, Django gives each model an auto-incrementing integer primary key.
+These primary keys look like they generate a continuous sequence of integers.
+
+However, this behavior isn't guaranteed.
 
 If a transaction inserts a row and then is rolled back, the sequence counter
 isn't rolled back for performance reasons, creating a gap in primary keys.
@@ -18,7 +21,9 @@ The solution
 ============
 
 django-sequences provides a ``get_next_value`` function which is designed to
-be used as follows::
+be used as follows:
+
+.. code:: python
 
     from django.db import transaction
 
@@ -27,25 +32,35 @@ be used as follows::
     from invoices.models import Invoice
 
     with transaction.atomic():
-        Invoice.objects.create(number=get_next_value('invoice_numbers'))
+        Invoice.objects.create(number=get_next_value("invoice_numbers"))
 
-**The guarantees of django-sequences only apply if you call** ``get_next_value``
-**and save its return value to the database within the same transaction!**
+``get_next_value`` relies on the database's transactional integrity to ensure
+that each value is returned exactly once. As a consequence, **the guarantees
+of django-sequences apply only if you call** ``get_next_value`` **and save its
+return value to the database within the same transaction!**
 
-Installation
-============
+Getting started
+===============
 
-django-sequences is compatible with Django 1.11 (LTS), 2.1 and 2.2.
+django-sequences is compatible with Django 2.2 (LTS) and 3.0.
 
-Install django-sequences::
+It is released under the BSD license, like Django itself.
+
+Install django-sequences:
+
+.. code:: shell-session
 
     $ pip install django-sequences
 
-Add it to the list of applications in your project's settings::
+Add it to the list of applications in your project's settings:
+
+.. code:: python
 
     INSTALLED_APPS += ['sequences.apps.SequencesConfig']
 
-Run migrations::
+Run migrations:
+
+.. code:: shell-session
 
     $ django-admin migrate
 
@@ -55,11 +70,13 @@ API
 ``get_next_value``
 ------------------
 
-::
+.. code:: pycon
 
     >>> from sequences import get_next_value
 
-This function generates a gapless sequence of integer values::
+This function generates a gapless sequence of integer values:
+
+.. code:: pycon
 
     >>> get_next_value()
     1
@@ -68,20 +85,24 @@ This function generates a gapless sequence of integer values::
     >>> get_next_value()
     3
 
-It supports multiple independent sequences::
+It supports multiple independent sequences:
 
-    >>> get_next_value('cases')
+.. code:: pycon
+
+    >>> get_next_value("cases")
     1
-    >>> get_next_value('cases')
+    >>> get_next_value("cases")
     2
-    >>> get_next_value('invoices')
+    >>> get_next_value("invoices")
     1
-    >>> get_next_value('invoices')
+    >>> get_next_value("invoices")
     2
 
-The first value defaults to 1. It can be customized::
+The first value defaults to 1. It can be customized:
 
-    >>> get_next_value('customers', initial_value=1000)  # pro growth hacking
+.. code:: pycon
+
+    >>> get_next_value("customers", initial_value=1000)  # pro growth hacking
 
 The ``initial_value`` parameter only matters when ``get_next_value`` is called
 for the first time for a given sequence — assuming the corresponding database
@@ -89,9 +110,11 @@ transaction gets committed; as discussed above, if the transaction is rolled
 back, the generated value isn't consumed. It's also possible to initialize a
 sequence in a data migration and not use ``initial_value`` in actual code.
 
-Sequences can loop::
+Sequences can loop:
 
-    >>> get_next_value('seconds', initial_value=0, reset_value=60)
+.. code:: pycon
+
+    >>> get_next_value("seconds", initial_value=0, reset_value=60)
 
 When the sequence reaches ``reset_value``, it restarts at ``initial_value``.
 In other works, it generates ``reset_value - 2``, ``reset_value - 1``,
@@ -115,15 +138,17 @@ first call. (Arguably this is a bug. Patches welcome.)
 Calls to ``get_next_value`` for distinct sequences don't interact with one
 another.
 
-Finally, passing ``using='...'`` allows selecting the database on which the
+Finally, passing ``using="..."`` allows selecting the database on which the
 current sequence value is stored. When this parameter isn't provided, it
 defaults to the default database for writing models of the ``sequences``
-application. See "Multiple databases" below for details.
+application. See `Multiple databases`_ for details.
 
-To sum up, the complete signature of ``get_next_value`` is::
+To sum up, the complete signature of ``get_next_value`` is:
+
+.. code:: python
 
     get_next_value(
-        sequence_name='default',
+        sequence_name="default",
         initial_value=1,
         reset_value=None,
         *,
@@ -131,17 +156,16 @@ To sum up, the complete signature of ``get_next_value`` is::
         using=None,
     )
 
-Under the hood, ``get_next_value`` relies on the database's transactional
-integrity to guarantee that each value is returned exactly once.
-
 ``get_last_value``
 ------------------
 
-::
+.. code:: pycon
 
     >>> from sequences import get_last_value
 
-This function returns the last value generated by a sequence::
+This function returns the last value generated by a sequence:
+
+.. code:: pycon
 
     >>> get_last_value()
     None
@@ -157,25 +181,29 @@ This function returns the last value generated by a sequence::
 If the sequence hasn't generated a value yet, ``get_last_value`` returns
 ``None``.
 
-It supports independent sequences like ``get_next_value``::
+It supports independent sequences like ``get_next_value``:
 
-    >>> get_next_value('cases')
+.. code:: pycon
+
+    >>> get_next_value("cases")
     1
-    >>> get_last_value('cases')
+    >>> get_last_value("cases")
     1
-    >>> get_next_value('invoices')
+    >>> get_next_value("invoices")
     1
-    >>> get_last_value('invoices')
+    >>> get_last_value("invoices")
     1
 
-It accepts ``using='...'`` for selecting the database on which the current
+It accepts ``using="..."`` for selecting the database on which the current
 sequence value is stored, defaulting to the default database for reading
 models of the ``sequences`` application.
 
-The complete signature of ``get_last_value`` is::
+The complete signature of ``get_last_value`` is:
+
+.. code:: python
 
     get_last_value(
-        sequence_name='default',
+        sequence_name="default",
         *,
         using=None,
     )
@@ -187,16 +215,18 @@ sequence generated but it makes no guarantees.** Concurrent calls to
 ``Sequence``
 ------------
 
-::
+.. code:: pycon
 
     >>> from sequences import Sequence
 
 (not to be confused with ``sequences.models.Sequence``, a private API)
 
 This class stores parameters for a sequence and provides ``get_next_value``
-and ``get_last_value`` methods::
+and ``get_last_value`` methods:
 
-    >>> claim_ids = Sequence('claims')
+.. code:: pycon
+
+    >>> claim_ids = Sequence("claims")
     >>> claim_ids.get_next_value()
     1
     >>> claim_ids.get_next_value()
@@ -207,17 +237,21 @@ and ``get_last_value`` methods::
 This reduces the risk of errors when the same sequence is used in multiple
 places.
 
-Instances of ``Sequence`` are also infinite iterators::
+Instances of ``Sequence`` are also infinite iterators:
+
+.. code:: pycon
 
     >>> next(claim_ids)
     3
     >>> next(claim_ids)
     4
 
-The complete API is::
+The complete API is:
+
+.. code:: python
 
     Sequence(
-        sequence_name='default',
+        sequence_name="default",
         initial_value=1,
         reset_value=None,
         *,
@@ -241,8 +275,12 @@ All parameters have the same meaning as in the ``get_next_value`` and
 Contributing
 ============
 
-You can run tests with::
+You can run tests with:
 
+.. code:: shell-session
+
+    $ poetry install
+    $ poetry shell
     $ make test
 
 If you'd like to contribute, please open an issue or a pull request on GitHub!
