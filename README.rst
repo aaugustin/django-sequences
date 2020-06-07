@@ -324,6 +324,13 @@ two databases will have independent counters in each database.
 Changelog
 =========
 
+2.5
+---
+
+* Fix Japanese and Turkish translations.
+* Restore compatibility with Python 3.5.
+* Support relabeling the ``sequences`` app with a custom ``AppConfig``.
+
 2.4
 ---
 
