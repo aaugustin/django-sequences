@@ -301,7 +301,8 @@ Database support
 
 django-sequences is tested on PostgreSQL, MySQL, Oracle, and SQLite.
 
-MySQL only supports the ``nowait`` parameter when it's MariaDB ≥ 8.0.1.
+MySQL only supports the ``nowait`` parameter from version 8.0.1.
+MariaDB only supports ``nowait`` from version 10.3.
 
 Applications that will only ever be deployed with an SQLite database don't
 need django-sequences because SQLite's ``INTEGER PRIMARY KEY AUTOINCREMENT``
