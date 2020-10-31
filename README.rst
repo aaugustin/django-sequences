@@ -128,13 +128,13 @@ Sequences can loop:
     >>> get_next_value("seconds", initial_value=0, reset_value=60)
 
 When the sequence reaches ``reset_value``, it restarts at ``initial_value``.
-In other works, it generates ``reset_value - 2``, ``reset_value - 1``,
+In other words, it generates ``reset_value - 2``, ``reset_value - 1``,
 ``initial_value``, ``initial_value + 1``, etc. In that case, each call to
 ``get_next_value`` must provide ``initial_value`` when it isn't the default
 and ``reset_value``.
 
 **Database transactions that call** ``get_next_value`` **for a given sequence
-are serialized.** In other words, when you call ``get_next_value`` in a
+are serialized.** As a consequence, when you call ``get_next_value`` in a
 database transaction, other callers trying to get a value from the same
 sequence block until the transaction completes, either with a commit or a
 rollback. You should keep such transactions short to minimize the impact on
@@ -144,7 +144,7 @@ This is why databases default to a faster behavior that may create gaps.
 
 Passing ``nowait=True`` makes ``get_next_value`` raise an exception instead of
 blocking in this scenario. This is rarely useful. Also it doesn't work for the
-first call. (Arguably this is a bug. Patches welcome.)
+first call. (This is a bug but it's harmless and hard to fix.)
 
 Calls to ``get_next_value`` for distinct sequences don't interact with one
 another.
