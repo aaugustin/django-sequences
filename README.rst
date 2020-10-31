@@ -12,6 +12,15 @@ However, this behavior isn't guaranteed.
 If a transaction inserts a row and then is rolled back, the sequence counter
 isn't rolled back for performance reasons, creating a gap in primary keys.
 
+Such gaps may happen on all databases natively supported by Django:
+
+* `PostgreSQL <https://www.postgresql.org/docs/current/datatype-numeric.html#DATATYPE-SERIAL>`_
+* `MariaDB <https://mariadb.com/kb/en/auto_increment/#missing-values>`_ / MySQL
+* `Oracle <https://docs.oracle.com/en/database/oracle/oracle-database/20/sqlrf/CREATE-SEQUENCE.html>`_
+* `SQLite <https://sqlite.org/autoinc.html#the_autoincrement_keyword>`_
+
+They may also happen on most databases supported via third-party backends.
+
 This can cause compliance issues for some use cases such as accounting.
 
 This risk isn't well known. Since most transactions succeed, values look
@@ -299,14 +308,10 @@ If you'd like to contribute, please open an issue or a pull request on GitHub!
 Database support
 ================
 
-django-sequences is tested on PostgreSQL, MySQL, Oracle, and SQLite.
+django-sequences is tested on PostgreSQL, MariaDB / MySQL, Oracle, and SQLite.
 
 MySQL only supports the ``nowait`` parameter from version 8.0.1.
 MariaDB only supports ``nowait`` from version 10.3.
-
-Applications that will only ever be deployed with an SQLite database don't
-need django-sequences because SQLite's ``INTEGER PRIMARY KEY AUTOINCREMENT``
-fields are guaranteed to be sequential.
 
 Multiple databases
 ==================
