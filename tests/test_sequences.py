@@ -114,12 +114,34 @@ class ConcurrencyTests(TransactionTestCase):
 
     def assertSequence(self, one, two, expected):
         actual = []
-        thread_one = threading.Thread(target=one, args=(actual,))
-        thread_two = threading.Thread(target=two, args=(actual,))
+        exc_one = None
+        exc_two = None
+
+        def wrap_one():
+            nonlocal actual, exc_one
+            try:
+                one(actual)
+            except Exception as exc:
+                exc_one = exc
+
+        def wrap_two():
+            nonlocal actual, exc_two
+            try:
+                two(actual)
+            except Exception as exc:
+                exc_two = exc
+
+        thread_one = threading.Thread(target=wrap_one)
+        thread_two = threading.Thread(target=wrap_two)
         thread_one.start()
         thread_two.start()
         thread_one.join(timeout=1)
         thread_two.join(timeout=1)
+        if exc_one is not None:
+            raise exc_one
+        if exc_two is not None:
+            raise exc_two
+
         self.assertEqual(actual, expected)
 
     def test_first_access_with_commit(self):
