@@ -327,6 +327,59 @@ storing models containing sequential numbers.
 Each database has its own namespace: a sequence with the same name stored in
 two databases will have independent counters in each database.
 
+Isolation levels
+================
+
+Since django-sequences relies on the database's transactional integrity, using
+a non-default transaction isolation level requires special care.
+
+* **read uncommitted:** django-sequences cannot work at this isolation level.
+
+  Indeed, concurrent transactions can create gaps, as in this scenario:
+
+  * Transaction A reads N and writes N + 1;
+  * Transaction B reads N + 1 (dirty read) and writes N + 2;
+  * Transaction A is rolled back;
+  * Transaction B is committed;
+  * N + 1 is a gap.
+
+  The read uncommitted isolation level doesn't provide sufficient guarantees.
+  It will never be supported.
+
+* **read committed:** django-sequences works best at this isolation level,
+  like Django itself.
+
+* **repeatable read:** django-sequences also works at this isolation level,
+  provided your code handles serialization failures and retries transactions.
+
+  This requirement isn't specific to django-sequences. It's generally needed
+  when running at the repeatable read isolation level.
+
+  Here's a scenario where only one of two concurrent transactions can
+  complete on PostgreSQL:
+
+  * Transaction A reads N and writes N + 1;
+  * Transaction B attemps to read; it must wait until transaction A completes;
+  * Transaction A is committed;
+  * Transaction B is aborted.
+
+  On PostgreSQL, serialization failures are reported as: ``OperationalError:
+  could not serialize access due to concurrent update``.
+
+  On MySQL, they result in: ``OperationalError: (1213, 'Deadlock found when
+  trying to get lock; try restarting transaction')``.
+
+  Concurrent transactions initializing the same sequence are also vulnerable,
+  although that's hardly ever a problem in practice.
+
+  On PostgreSQL, this manifests as ``IntegrityError: duplicate key value
+  violates unique constraint "sequences_sequence_pkey"``.
+
+* **serializable:** the situation is identical to the repeatable read level.
+
+  SQLite always runs at the serializable isolation level. Serialization
+  failures result in: ``OperationalError: database is locked``.
+
 Changelog
 =========
 
