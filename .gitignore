@@ -1,5 +1,4 @@
 *.pyc
 .tox
 dist
-django_sequences.egg-info
 poetry.lock
