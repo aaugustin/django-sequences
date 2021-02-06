@@ -383,6 +383,11 @@ a non-default transaction isolation level requires special care.
 Changelog
 =========
 
+2.6
+---
+
+* Improve documentation.
+
 2.5
 ---
 
