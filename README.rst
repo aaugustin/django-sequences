@@ -62,7 +62,7 @@ return value to the database within the same transaction!**
 Getting started
 ===============
 
-django-sequences is tested with Django 2.2 (LTS), 3.0, and 3.1.
+django-sequences is tested with Django 2.2 (LTS), 3.0, 3.1, and 3.2 (LTS).
 
 It is released under the BSD license, like Django itself.
 
