@@ -4,4 +4,4 @@ test_%:
 	python -m django test --settings=tests.$*_settings
 
 clean:
-	rm -rf dist src/django_sesame.egg-info
+	rm -rf dist src/django_sequences.egg-info
