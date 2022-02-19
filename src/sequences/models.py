@@ -19,5 +19,4 @@ class Sequence(models.Model):
         verbose_name_plural = _("sequences")
 
     def __str__(self):
-        return "Sequence(name={}, last={})".format(
-            repr(self.name), repr(self.last))
+        return "Sequence(name={}, last={})".format(repr(self.name), repr(self.last))

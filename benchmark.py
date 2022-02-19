@@ -19,11 +19,13 @@ LOOPS = 500
 THREADS = 20
 VALUES = []
 
+
 def get_values():
     for _ in range(LOOPS):
         # Add `reset_value=10001` to use the ORM-based, non-optimized implementation.
         VALUES.append(get_next_value(reset_value=10001))
     connection.close()
+
 
 threads = [threading.Thread(target=get_values) for _ in range(THREADS)]
 

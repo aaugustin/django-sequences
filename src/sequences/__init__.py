@@ -23,9 +23,9 @@ MYSQL_UPSERT = """
 
 
 def get_last_value(
-    sequence_name='default',
+    sequence_name="default",
     *,
-    using=None
+    using=None,
 ):
     """
     Return the last value for a given sequence.
@@ -43,7 +43,7 @@ def get_last_value(
     with connection.cursor() as cursor:
         cursor.execute(
             SELECT.format(db_table=db_table),
-            [sequence_name]
+            [sequence_name],
         )
         result = cursor.fetchone()
 
@@ -51,12 +51,12 @@ def get_last_value(
 
 
 def get_next_value(
-    sequence_name='default',
+    sequence_name="default",
     initial_value=1,
     reset_value=None,
     *,
     nowait=False,
-    using=None
+    using=None,
 ):
     """
     Return the next value for a given sequence.
@@ -75,9 +75,9 @@ def get_next_value(
     db_table = connection.ops.quote_name(Sequence._meta.db_table)
 
     if (
-        connection.vendor == 'postgresql'
-        # connection.features.is_postgresql_9_5 when dropping Django 1.11.
-        and getattr(connection, 'pg_version', 0) >= 90500
+        connection.vendor == "postgresql"
+        # Remove when dropping Django 2.2. Django 3.0 requires PostgreSQL 9.5.
+        and getattr(connection, "pg_version", 0) >= 90500
         and reset_value is None
         and not nowait
     ):
@@ -88,17 +88,13 @@ def get_next_value(
         with connection.cursor() as cursor:
             cursor.execute(
                 POSTGRESQL_UPSERT.format(db_table=db_table),
-                [sequence_name, initial_value]
-            )
+                [sequence_name, initial_value],
+            ),
             result = cursor.fetchone()
 
         return result[0]
 
-    elif (
-        connection.vendor == 'mysql'
-        and reset_value is None
-        and not nowait
-    ):
+    elif connection.vendor == "mysql" and reset_value is None and not nowait:
 
         # MySQL supports "upsert" but not "returning".
         # This is about 2x faster as the naive implementation.
@@ -107,11 +103,11 @@ def get_next_value(
             with connection.cursor() as cursor:
                 cursor.execute(
                     MYSQL_UPSERT.format(db_table=db_table),
-                    [sequence_name, initial_value]
+                    [sequence_name, initial_value],
                 )
                 cursor.execute(
                     SELECT.format(db_table=db_table),
-                    [sequence_name]
+                    [sequence_name],
                 )
                 result = cursor.fetchone()
 
@@ -122,11 +118,10 @@ def get_next_value(
         # Default, ORM-based implementation for all other cases.
 
         with transaction.atomic(using=using, savepoint=False):
-            sequence, created = (
-                Sequence.objects
-                        .select_for_update(nowait=nowait)
-                        .get_or_create(name=sequence_name,
-                                       defaults={'last': initial_value})
+            sequences = Sequence.objects.select_for_update(nowait=nowait)
+            sequence, created = sequences.get_or_create(
+                name=sequence_name,
+                defaults={"last": initial_value},
             )
 
             if not created:
@@ -143,13 +138,14 @@ class Sequence:
     Generate a gapless sequence of integer values.
 
     """
+
     def __init__(
         self,
-        sequence_name='default',
+        sequence_name="default",
         initial_value=1,
         reset_value=None,
         *,
-        using=None
+        using=None,
     ):
         if reset_value is not None:
             assert initial_value < reset_value
@@ -158,9 +154,7 @@ class Sequence:
         self.reset_value = reset_value
         self.using = using
 
-    def get_last_value(
-        self,
-    ):
+    def get_last_value(self):
         """
         Return the last value of the sequence.
 
@@ -170,11 +164,7 @@ class Sequence:
             using=self.using,
         )
 
-    def get_next_value(
-        self,
-        *,
-        nowait=False
-    ):
+    def get_next_value(self, *, nowait=False):
         """
         Return the next value of the sequence.
 
