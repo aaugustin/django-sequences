@@ -1,9 +1,6 @@
 django-sequences
 ################
 
-The problem
-===========
-
 By default, Django gives each model an auto-incrementing integer primary key.
 These primary keys look like they generate a continuous sequence of integers.
 
@@ -26,11 +23,8 @@ This can cause compliance issues for some use cases such as accounting.
 This risk isn't well known. Since most transactions succeed, values look
 sequential. Gaps will only be revealed by audits.
 
-The solution
-============
-
-django-sequences provides a ``get_next_value`` function which is designed to
-be used as follows:
+django-sequences solves this problem with a ``get_next_value`` function
+designed to be used as follows:
 
 .. code:: python
 
@@ -52,12 +46,23 @@ Or, if you'd rather use an object-oriented API:
     invoice_numbers = Sequence("invoice_numbers")
 
     with transaction.atomic():
-        Invoice.objects.create(number=invoice_numbers.get_next_value())
+        Invoice.objects.create(number=next(invoice_numbers))
 
 ``get_next_value`` relies on the database's transactional integrity to ensure
 that each value is returned exactly once. As a consequence, **the guarantees
 of django-sequences apply only if you call** ``get_next_value`` **and save its
 return value to the database within the same transaction!**
+
+Table of contents
+=================
+
+* `Getting started`_
+* `Database support`_
+* `Multiple databases`_
+* `Isolation levels`_
+* `Contributing`_
+* `Releasing`_
+* `Changelog`_
 
 Getting started
 ===============
