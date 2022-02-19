@@ -1,3 +1,8 @@
+style:
+	isort src tests
+	black src tests
+	flake8 src tests
+
 test: test_postgresql test_mysql test_oracle test_sqlite
 
 test_%:
