@@ -31,7 +31,7 @@ packages = [
 
 [tool.poetry.dependencies]
 django = ">=2.2"
-python = "^3.6"
+python = ">=3.6.2"
 
 [tool.poetry.dev-dependencies]
 black = "*"
