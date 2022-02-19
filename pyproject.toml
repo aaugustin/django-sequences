@@ -28,7 +28,7 @@ packages = [
 
 [tool.poetry.dependencies]
 django = ">=2.2"
-python = "^3.5"
+python = "^3.6"
 
 [tool.poetry.dev-dependencies]
 cx-Oracle = "*"
