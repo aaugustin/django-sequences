@@ -78,7 +78,11 @@ Add it to the list of applications in your project's settings:
 
 .. code:: python
 
-    INSTALLED_APPS += ['sequences.apps.SequencesConfig']
+    INSTALLED_APPS = [
+        ...,
+        "sequences.apps.SequencesConfig",
+        ...
+    ]
 
 Run migrations:
 
@@ -293,20 +297,6 @@ The complete API is:
 All parameters have the same meaning as in the ``get_next_value`` and
 ``get_last_value`` functions.
 
-
-Contributing
-============
-
-You can run tests with:
-
-.. code:: shell-session
-
-    $ poetry install
-    $ poetry shell
-    $ make test
-
-If you'd like to contribute, please open an issue or a pull request on GitHub!
-
 Database support
 ================
 
@@ -381,6 +371,61 @@ a non-default transaction isolation level requires special care.
 
   SQLite always runs at the serializable isolation level. Serialization
   failures result in: ``OperationalError: database is locked``.
+
+Contributing
+============
+
+Prepare a development environment:
+
+* Install Poetry_.
+* Run ``poetry install``.
+* Run ``poetry shell`` to load the development environment.
+
+Prepare testing databases:
+
+* Install PostgreSQL, MariaDB, and Oracle.
+* Create a database called ``sequences``, owned by a user called ``sequences``
+  with password ``sequences``, with permissions to create a ``test_sequences``
+  test database. You may override these values with environment variables; see
+  ``tests/*_settings.py`` for details.
+
+Make changes:
+
+* Make changes to the code, tests, or docs.
+* Run ``make style`` and fix any flake8 violations.
+* Run ``make test`` to run the set suite on all databases.
+
+Iterate until you're happy.
+
+Check quality and submit your changes:
+
+* Install tox_.
+* Run ``tox`` to test on all Python and Django versions and all databases.
+* Submit a pull request.
+
+.. _Poetry: https://python-poetry.org/
+.. _tox: https://tox.readthedocs.io/
+
+Releasing
+=========
+
+Increment version number X.Y in ``pyproject.toml``.
+
+Commit, tag, and push the change:
+
+.. code:: shell-session
+
+    $ git commit -m "Bump version number".
+    $ git tag X.Y
+    $ git push
+    $ git push --tags
+
+Build and publish the new version:
+
+.. code:: shell-session
+
+    $ poetry build
+    $ poetry publish
 
 Changelog
 =========
