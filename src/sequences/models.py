@@ -10,7 +10,7 @@ class Sequence(models.Model):
         primary_key=True,
     )
 
-    last = models.PositiveIntegerField(
+    last = models.PositiveBigIntegerField(
         verbose_name=_("last value"),
     )
 

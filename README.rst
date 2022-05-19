@@ -435,6 +435,12 @@ Build and publish the new version:
 Changelog
 =========
 
+* ``Sequence.last`` field changed from ``PositiveIntegerField`` to ``PositiveBigIntegerField``
+  in migration ``0002_alter_sequence_last.py``. There will be **aggressive exclusive lock** during migration
+  due to binary incompatibility of both data types. Lock essentially prevents any other operation on the table
+  including reads. Migration duration is dependent on ``sequences_sequence`` table size.
+  You can also skip migration using ``migrate --fake``.
+
 2.6
 ---
 
