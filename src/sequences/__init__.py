@@ -76,8 +76,6 @@ def get_next_value(
 
     if (
         connection.vendor == "postgresql"
-        # Remove when dropping Django 2.2. Django 3.0 requires PostgreSQL 9.5.
-        and getattr(connection, "pg_version", 0) >= 90500
         and reset_value is None
         and not nowait
     ):
