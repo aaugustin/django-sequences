@@ -435,6 +435,9 @@ Build and publish the new version:
 Changelog
 =========
 
+2.7
+---
+
 * Sequence values can go up to ``2 ** 63 - 1`` instead of ``2 ** 31 - 1``
   previously. The exact limit depends on the database backend.
 
