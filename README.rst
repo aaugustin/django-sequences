@@ -13,7 +13,7 @@ Such gaps may happen on all databases natively supported by Django:
 
 * `PostgreSQL <https://www.postgresql.org/docs/current/datatype-numeric.html#DATATYPE-SERIAL>`_
 * `MariaDB <https://mariadb.com/kb/en/auto_increment/#missing-values>`_ / MySQL
-* `Oracle <https://docs.oracle.com/en/database/oracle/oracle-database/20/sqlrf/CREATE-SEQUENCE.html>`_
+* `Oracle <https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/CREATE-SEQUENCE.html>`_
 * `SQLite <https://sqlite.org/autoinc.html#the_autoincrement_keyword>`_
 
 They may also happen on most databases supported via third-party backends.
