@@ -292,7 +292,7 @@ The complete API is:
     Sequence.get_next_value(
         self,
         *,
-        nowait=False
+        nowait=False,
     )
 
     Sequence.get_last_value(
