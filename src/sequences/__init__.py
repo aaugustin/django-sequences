@@ -74,11 +74,7 @@ def get_next_value(
     connection = connections[using]
     db_table = connection.ops.quote_name(Sequence._meta.db_table)
 
-    if (
-        connection.vendor == "postgresql"
-        and reset_value is None
-        and not nowait
-    ):
+    if connection.vendor == "postgresql" and reset_value is None and not nowait:
 
         # PostgreSQL ≥ 9.5 supports "upsert".
         # This is about 3x faster as the naive implementation.
