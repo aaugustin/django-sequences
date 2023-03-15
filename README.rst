@@ -57,6 +57,7 @@ Table of contents
 =================
 
 * `Getting started`_
+* `API`_
 * `Database support`_
 * `Multiple databases`_
 * `Isolation levels`_
