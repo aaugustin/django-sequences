@@ -303,6 +303,28 @@ The complete API is:
 All parameters have the same meaning as in the ``get_next_value`` and
 ``get_last_value`` functions.
 
+
+Examples
+========
+
+Reset values on a date
+----------------------
+
+There are situations where you want to reset the next value of a sequence when the date (or month/year) changes. This can be achieved by integrating the date on the name of the sequence. For example:
+
+.. code:: python
+
+    from django.utils import timezone
+    from sequences import get_next_value
+    
+    # Reset the count every day
+    get_next_value(f"books-{timezone.now().date().isoformat()}")
+    # or, to reset every year
+    get_next_value(f"prototocol-{timezone.now().year}")
+
+The above will result to creating different sequences named similar to ``books-2023-03-15`, ``books-2023-03-16`` or ``protocol-2022``, ``protocol-2023`` each with their own count.
+
+
 Database support
 ================
 
