@@ -322,7 +322,7 @@ There are situations where you want to reset the next value of a sequence when t
     # or, to reset every year
     get_next_value(f"prototocol-{timezone.now().year}")
 
-The above will result to creating different sequences named similar to ``books-2023-03-15`, ``books-2023-03-16`` or ``protocol-2022``, ``protocol-2023`` each with their own count.
+The above will result to creating different sequences named similar to ``books-2023-03-15``, ``books-2023-03-16`` or ``protocol-2022``, ``protocol-2023`` each with their own count.
 
 
 Database support
