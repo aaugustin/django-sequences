@@ -324,6 +324,7 @@ date fragment in the sequence name. For example:
 
 The above calls will result in separate sequences like ``books-2023-03-15``
 or ``protocol-2022``, respectively.
+
 Database support
 ================
 
