@@ -303,6 +303,28 @@ The complete API is:
 All parameters have the same meaning as in the ``get_next_value`` and
 ``get_last_value`` functions.
 
+Examples
+========
+
+Per-date sequences
+------------------
+
+If you want independent sequences per day, month, or year, use the appropriate
+date fragment in the sequence name. For example:
+
+.. code:: python
+
+    from django.utils import timezone
+    from sequences import get_next_value
+    
+    # Per-day sequence
+    get_next_value(f"books-{timezone.now().date().isoformat()}")
+    # Per-year sequence
+    get_next_value(f"prototocol-{timezone.now().year}")
+
+The above calls will result in separate sequences like ``books-2023-03-15``
+or ``protocol-2022``, respectively.
+
 Database support
 ================
 
