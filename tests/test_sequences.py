@@ -172,7 +172,6 @@ class ConcurrencyTests(TransactionTestCase):
         self.assertSequence(one, two, expected)
 
     def test_later_access_with_commit(self):
-
         get_next_value()
 
         def one(output):
@@ -236,7 +235,6 @@ class ConcurrencyTests(TransactionTestCase):
         self.assertSequence(one, two, expected)
 
     def test_later_access_with_rollback(self):
-
         get_next_value()
 
         def one(output):
@@ -325,7 +323,6 @@ class ConcurrencyTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update_nowait")
     def test_later_access_nowait(self):
-
         get_next_value()
 
         def one(output):
@@ -386,7 +383,6 @@ class ConcurrencyTests(TransactionTestCase):
         self.assertSequence(one, two, expected)
 
     def test_later_access_to_different_sequences(self):
-
         get_next_value("one")
         get_next_value("two")
 

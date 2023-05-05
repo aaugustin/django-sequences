@@ -75,7 +75,6 @@ def get_next_value(
     db_table = connection.ops.quote_name(Sequence._meta.db_table)
 
     if connection.vendor == "postgresql" and reset_value is None and not nowait:
-
         # PostgreSQL ≥ 9.5 supports "upsert".
         # This is about 3x faster as the naive implementation.
 
@@ -89,7 +88,6 @@ def get_next_value(
         return result[0]
 
     elif connection.vendor == "mysql" and reset_value is None and not nowait:
-
         # MySQL supports "upsert" but not "returning".
         # This is about 2x faster as the naive implementation.
 
@@ -108,7 +106,6 @@ def get_next_value(
         return result[0]
 
     else:
-
         # Default, ORM-based implementation for all other cases.
 
         with transaction.atomic(using=using, savepoint=False):
