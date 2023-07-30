@@ -7,7 +7,7 @@ profile = "black"
 
 [tool.poetry]
 name = "django-sequences"
-version = "2.7"
+version = "2.8"
 description = "Generate gapless sequences of integer values."
 license = "BSD-3-Clause"
 authors = ["Aymeric Augustin <aymeric.augustin@m4x.org>"]

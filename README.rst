@@ -316,7 +316,7 @@ date fragment in the sequence name. For example:
 
     from django.utils import timezone
     from sequences import get_next_value
-    
+
     # Per-day sequence
     get_next_value(f"books-{timezone.now().date().isoformat()}")
     # Per-year sequence
@@ -457,6 +457,11 @@ Build and publish the new version:
 
 Changelog
 =========
+
+2.8
+---
+
+* No significant changes.
 
 2.7
 ---
