@@ -21,6 +21,12 @@ MYSQL_UPSERT = """
              UPDATE last = {db_table}.last + 1
 """
 
+DELETE = """
+             DELETE
+               FROM {db_table}
+              WHERE name = %s
+"""
+
 
 def get_last_value(
     sequence_name="default",
@@ -28,7 +34,7 @@ def get_last_value(
     using=None,
 ):
     """
-    Return the last value for a given sequence.
+    Return the last value for a sequence.
 
     """
     # Inner import because models cannot be imported before their application.
@@ -59,7 +65,7 @@ def get_next_value(
     using=None,
 ):
     """
-    Return the next value for a given sequence.
+    Return the next value for a sequence.
 
     """
     # Inner import because models cannot be imported before their application.
@@ -124,6 +130,32 @@ def get_next_value(
             return sequence.last
 
 
+def delete(
+    sequence_name="default",
+    *,
+    using=None,
+):
+    """
+    Delete a sequence.
+
+    """
+    # Inner import because models cannot be imported before their application.
+    from .models import Sequence
+
+    if using is None:
+        using = router.db_for_write(Sequence)
+
+    connection = connections[using]
+    db_table = connection.ops.quote_name(Sequence._meta.db_table)
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            DELETE.format(db_table=db_table),
+            [sequence_name],
+        )
+        return bool(cursor.rowcount)
+
+
 class Sequence:
     """
     Generate a gapless sequence of integer values.
@@ -165,6 +197,16 @@ class Sequence:
             self.initial_value,
             self.reset_value,
             nowait=nowait,
+            using=self.using,
+        )
+
+    def delete(self):
+        """
+        Delete the sequence.
+
+        """
+        return delete(
+            self.sequence_name,
             using=self.using,
         )
 

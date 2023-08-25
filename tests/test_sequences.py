@@ -6,7 +6,7 @@ import unittest
 from django.db import DatabaseError, connection, transaction
 from django.test import TestCase, TransactionTestCase, skipUnlessDBFeature
 
-from sequences import Sequence, get_last_value, get_next_value
+from sequences import Sequence, delete, get_last_value, get_next_value
 
 
 class SingleConnectionTestsMixin:
@@ -16,7 +16,10 @@ class SingleConnectionTestsMixin:
         self.assertEqual(get_last_value(), 1)
         self.assertEqual(get_next_value(), 2)
         self.assertEqual(get_last_value(), 2)
-        self.assertEqual(get_next_value(), 3)
+        self.assertEqual(delete(), True)
+        self.assertEqual(get_last_value(), None)
+        self.assertEqual(delete(), False)
+        self.assertEqual(get_last_value(), None)
 
     def test_functions_sequence_name(self):
         self.assertEqual(get_last_value("cases"), None)
@@ -55,7 +58,10 @@ class SingleConnectionTestsMixin:
         self.assertEqual(seq.get_last_value(), 1)
         self.assertEqual(seq.get_next_value(), 2)
         self.assertEqual(seq.get_last_value(), 2)
-        self.assertEqual(seq.get_next_value(), 3)
+        self.assertEqual(seq.delete(), True)
+        self.assertEqual(seq.get_last_value(), None)
+        self.assertEqual(seq.delete(), False)
+        self.assertEqual(seq.get_last_value(), None)
 
     def test_class_iter(self):
         seq = Sequence(initial_value=0)
@@ -77,6 +83,10 @@ class SingleConnectionTestsMixin:
         self.assertEqual(invoices_seq.get_next_value(), 1)
         self.assertEqual(invoices_seq.get_last_value(), 1)
         self.assertEqual(invoices_seq.get_next_value(), 2)
+        self.assertEqual(cases_seq.delete(), True)
+        self.assertEqual(cases_seq.get_last_value(), None)
+        self.assertEqual(invoices_seq.delete(), True)
+        self.assertEqual(invoices_seq.get_last_value(), None)
 
     def test_class_initial_value(self):
         customers_seq = Sequence("customers", initial_value=1000)
