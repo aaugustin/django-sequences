@@ -244,6 +244,40 @@ The complete signature of ``get_last_value`` is:
 sequence generated but it makes no guarantees.** Concurrent calls to
 ``get_next_value`` may produce unexpected results of ``get_last_value``.
 
+``delete``
+----------
+
+.. code:: pycon
+
+    >>> from sequences import delete
+
+This function deletes a sequence. It returns ``True`` if the sequence existed
+and was deleted and ``False`` otherwise.
+
+.. code:: pycon
+
+    >>> company_id = "b1f6cdef-367f-49e4-9cf5-bb0d34707af8"
+    >>> get_next_value(f"invoices—{company_id}")
+    1
+    >>> delete(f"invoices—{company_id}")
+    True
+    >>> delete(f"invoices—{company_id}")
+    False
+
+It accepts ``using="..."`` for selecting the database, like ``get_next_value``.
+
+The complete signature of ``delete`` is:
+
+.. code:: python
+
+    delete(
+        sequence_name="default",
+        *,
+        using=None,
+    )
+
+``delete`` is useful when you create many sequences and want to dispose of some.
+
 ``Sequence``
 ------------
 
@@ -253,8 +287,8 @@ sequence generated but it makes no guarantees.** Concurrent calls to
 
 (not to be confused with ``sequences.models.Sequence``, a private API)
 
-This class stores parameters for a sequence and provides ``get_next_value``
-and ``get_last_value`` methods:
+This class stores parameters for a sequence and provides ``get_next_value``,
+``get_last_value``, and ``delete`` methods:
 
 .. code:: pycon
 
@@ -265,6 +299,8 @@ and ``get_last_value`` methods:
     2
     >>> claim_ids.get_last_value()
     2
+    >>> claim_ids.delete()
+    True
 
 This reduces the risk of errors when the same sequence is used in multiple
 places.
@@ -300,8 +336,12 @@ The complete API is:
         self,
     )
 
-All parameters have the same meaning as in the ``get_next_value`` and
-``get_last_value`` functions.
+    Sequence.delete(
+        self,
+    )
+
+All parameters have the same meaning as in the ``get_next_value``,
+``get_last_value``, and ``delete`` functions.
 
 Examples
 ========
@@ -457,6 +497,11 @@ Build and publish the new version:
 
 Changelog
 =========
+
+2.9
+---
+
+* Add the ``delete`` function.
 
 2.8
 ---
