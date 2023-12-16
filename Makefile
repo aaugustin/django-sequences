@@ -1,7 +1,6 @@
 style:
-	isort src tests
 	black src tests
-	flake8 src tests
+	ruff --fix src tests
 
 test: test_postgresql test_mysql test_oracle test_sqlite
 

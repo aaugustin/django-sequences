@@ -462,7 +462,7 @@ Prepare testing databases:
 Make changes:
 
 * Make changes to the code, tests, or docs.
-* Run ``make style`` and fix any flake8 violations.
+* Run ``make style`` and fix errors.
 * Run ``make test`` to run the set suite on all databases.
 
 Iterate until you're happy.
