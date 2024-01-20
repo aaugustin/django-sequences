@@ -156,6 +156,18 @@ In other words, it generates ``reset_value - 2``, ``reset_value - 1``,
 ``get_next_value`` must provide ``initial_value`` when it isn't the default
 and ``reset_value``.
 
+You can generate many values at once::
+
+.. code:: pycon
+
+    >>> get_next_value("transactions", batch=10)
+    range(1, 11)
+
+When the ``batch`` parameter is provided, ``get_next_value`` returns an iterable
+of values instead of a single value. As a reminder, you must save all these
+values to the database within the same transaction to benefit from the
+guarantees of django-sequences.
+
 **Database transactions that call** ``get_next_value`` **for a given sequence
 are serialized.** As a consequence, when you call ``get_next_value`` in a
 database transaction, other callers trying to get a value from the same
@@ -185,6 +197,7 @@ To sum up, the complete signature of ``get_next_value`` is:
         sequence_name="default",
         initial_value=1,
         reset_value=None,
+        batch=None,
         *,
         nowait=False,
         using=None,
@@ -330,6 +343,7 @@ The complete API is:
 
     Sequence.get_next_value(
         self,
+        batch=None,
         *,
         nowait=False,
     )
@@ -499,6 +513,11 @@ Build and publish the new version:
 
 Changelog
 =========
+
+3.0
+---
+
+* Support generating values in batch with ``batch``.
 
 2.9
 ---

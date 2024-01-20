@@ -10,7 +10,7 @@ POSTGRESQL_UPSERT = """
         INSERT INTO {db_table} (name, last)
              VALUES (%s, %s)
         ON CONFLICT (name)
-      DO UPDATE SET last = {db_table}.last + 1
+      DO UPDATE SET last = {db_table}.last + %s
           RETURNING last;
 """
 
@@ -18,7 +18,7 @@ MYSQL_UPSERT = """
         INSERT INTO {db_table} (name, last)
              VALUES (%s, %s)
    ON DUPLICATE KEY
-             UPDATE last = {db_table}.last + 1
+             UPDATE last = {db_table}.last + %s
 """
 
 DELETE = """
@@ -60,6 +60,7 @@ def get_next_value(
     sequence_name="default",
     initial_value=1,
     reset_value=None,
+    batch=None,
     *,
     nowait=False,
     using=None,
@@ -72,7 +73,16 @@ def get_next_value(
     from .models import Sequence
 
     if reset_value is not None:
-        assert initial_value < reset_value
+        if initial_value >= reset_value:
+            raise ValueError("reset_value must be greater than initial_value")
+
+    if batch is None:
+        increment = 1
+    else:
+        if reset_value is not None:
+            raise ValueError("reset_value and batch are incompatible")
+        increment = batch
+        initial_value = initial_value + increment - 1
 
     if using is None:
         using = router.db_for_write(Sequence)
@@ -87,11 +97,11 @@ def get_next_value(
         with connection.cursor() as cursor:
             cursor.execute(
                 POSTGRESQL_UPSERT.format(db_table=db_table),
-                [sequence_name, initial_value],
+                [sequence_name, initial_value, increment],
             ),
             result = cursor.fetchone()
 
-        return result[0]
+        next_value = result[0]
 
     elif connection.vendor == "mysql" and reset_value is None and not nowait:
         # MySQL supports "upsert" but not "returning".
@@ -101,7 +111,7 @@ def get_next_value(
             with connection.cursor() as cursor:
                 cursor.execute(
                     MYSQL_UPSERT.format(db_table=db_table),
-                    [sequence_name, initial_value],
+                    [sequence_name, initial_value, increment],
                 )
                 cursor.execute(
                     SELECT.format(db_table=db_table),
@@ -109,7 +119,7 @@ def get_next_value(
                 )
                 result = cursor.fetchone()
 
-        return result[0]
+        next_value = result[0]
 
     else:
         # Default, ORM-based implementation for all other cases.
@@ -122,12 +132,17 @@ def get_next_value(
             )
 
             if not created:
-                sequence.last += 1
+                sequence.last += increment
                 if reset_value is not None and sequence.last >= reset_value:
                     sequence.last = initial_value
                 sequence.save()
 
-            return sequence.last
+            next_value = sequence.last
+
+    if batch is None:
+        return next_value
+    else:
+        return range(next_value - increment + 1, next_value + 1)
 
 
 def delete(
@@ -170,8 +185,6 @@ class Sequence:
         *,
         using=None,
     ):
-        if reset_value is not None:
-            assert initial_value < reset_value
         self.sequence_name = sequence_name
         self.initial_value = initial_value
         self.reset_value = reset_value
@@ -187,7 +200,7 @@ class Sequence:
             using=self.using,
         )
 
-    def get_next_value(self, *, nowait=False):
+    def get_next_value(self, batch=None, *, nowait=False):
         """
         Return the next value of the sequence.
 
@@ -196,6 +209,7 @@ class Sequence:
             self.sequence_name,
             self.initial_value,
             self.reset_value,
+            batch,
             nowait=nowait,
             using=self.using,
         )

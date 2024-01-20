@@ -47,9 +47,21 @@ class SingleConnectionTestsMixin:
         self.assertEqual(get_next_value("reference", 1, 3), 1)
         self.assertEqual(get_next_value("reference", 1, 3), 2)
 
+    def test_functions_batch(self):
+        self.assertEqual(list(get_next_value("reference", batch=3)), [1, 2, 3])
+        self.assertEqual(list(get_next_value("reference", batch=3)), [4, 5, 6])
+        self.assertEqual(list(get_next_value("reference", batch=1)), [7])
+        self.assertEqual(list(get_next_value("reference", batch=0)), [])
+        self.assertEqual(list(get_next_value("reference", 1, None, 2)), [8, 9])
+        self.assertEqual(get_next_value("reference"), 10)
+
     def test_functions_reset_value_smaller_than_initial_value(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             get_next_value("error", initial_value=1, reset_value=1)
+
+    def test_functions_reset_value_and_batch(self):
+        with self.assertRaises(ValueError):
+            get_next_value("error", reset_value=1, batch=1)
 
     def test_class_defaults(self):
         seq = Sequence()
@@ -100,9 +112,14 @@ class SingleConnectionTestsMixin:
         self.assertEqual(reference_seq.get_next_value(), 1)
         self.assertEqual(reference_seq.get_next_value(), 2)
 
-    def test_class_reset_value_smaller_than_initial_value(self):
-        with self.assertRaises(AssertionError):
-            Sequence("error", initial_value=1, reset_value=1)
+    def test_class_batch(self):
+        reference_seq = Sequence("reference")
+        self.assertEqual(list(reference_seq.get_next_value(batch=3)), [1, 2, 3])
+        self.assertEqual(list(reference_seq.get_next_value(batch=3)), [4, 5, 6])
+        self.assertEqual(list(reference_seq.get_next_value(batch=1)), [7])
+        self.assertEqual(list(reference_seq.get_next_value(batch=0)), [])
+        self.assertEqual(list(reference_seq.get_next_value(2)), [8, 9])
+        self.assertEqual(reference_seq.get_next_value(), 10)
 
 
 class SingleConnectionInAutocommitTests(
