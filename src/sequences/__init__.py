@@ -10,7 +10,7 @@ POSTGRESQL_UPSERT = """
         INSERT INTO {db_table} (name, last)
              VALUES (%s, %s)
         ON CONFLICT (name)
-      DO UPDATE SET last = {db_table}.last + 1
+      DO UPDATE SET last = {db_table}.last + %s
           RETURNING last;
 """
 
@@ -18,7 +18,7 @@ MYSQL_UPSERT = """
         INSERT INTO {db_table} (name, last)
              VALUES (%s, %s)
    ON DUPLICATE KEY
-             UPDATE last = {db_table}.last + 1
+             UPDATE last = {db_table}.last + %s
 """
 
 DELETE = """
@@ -63,6 +63,7 @@ def get_next_value(
     *,
     nowait=False,
     using=None,
+    increment=1,  # private API
 ):
     """
     Return the next value for a sequence.
@@ -87,7 +88,7 @@ def get_next_value(
         with connection.cursor() as cursor:
             cursor.execute(
                 POSTGRESQL_UPSERT.format(db_table=db_table),
-                [sequence_name, initial_value],
+                [sequence_name, initial_value, increment],
             ),
             result = cursor.fetchone()
 
@@ -101,7 +102,7 @@ def get_next_value(
             with connection.cursor() as cursor:
                 cursor.execute(
                     MYSQL_UPSERT.format(db_table=db_table),
-                    [sequence_name, initial_value],
+                    [sequence_name, initial_value, increment],
                 )
                 cursor.execute(
                     SELECT.format(db_table=db_table),
@@ -122,12 +123,30 @@ def get_next_value(
             )
 
             if not created:
-                sequence.last += 1
+                sequence.last += increment
                 if reset_value is not None and sequence.last >= reset_value:
                     sequence.last = initial_value
                 sequence.save()
 
             return sequence.last
+
+
+def get_next_values(
+    batch_size,
+    sequence_name="default",
+    initial_value=1,
+    *,
+    nowait=False,
+    using=None,
+):
+    next_value = get_next_value(
+        sequence_name,
+        initial_value + batch_size - 1,
+        nowait=nowait,
+        using=using,
+        increment=batch_size,
+    )
+    return range(next_value - batch_size + 1, next_value + 1)
 
 
 def delete(
@@ -196,6 +215,15 @@ class Sequence:
             self.sequence_name,
             self.initial_value,
             self.reset_value,
+            nowait=nowait,
+            using=self.using,
+        )
+
+    def get_next_values(self, batch_size, *, nowait=False):
+        return get_next_values(
+            batch_size,
+            self.sequence_name,
+            self.initial_value,
             nowait=nowait,
             using=self.using,
         )

@@ -6,7 +6,7 @@ import unittest
 from django.db import DatabaseError, connection, transaction
 from django.test import TestCase, TransactionTestCase, skipUnlessDBFeature
 
-from sequences import Sequence, delete, get_last_value, get_next_value
+from sequences import Sequence, delete, get_last_value, get_next_value, get_next_values
 
 
 class SingleConnectionTestsMixin:
@@ -46,6 +46,16 @@ class SingleConnectionTestsMixin:
         self.assertEqual(get_next_value("reference", 1, 3), 2)
         self.assertEqual(get_next_value("reference", 1, 3), 1)
         self.assertEqual(get_next_value("reference", 1, 3), 2)
+
+    def test_functions_batch(self):
+        self.assertEqual(list(get_next_values(3, "reference")), [1, 2, 3])
+        self.assertEqual(list(get_next_values(3, "reference")), [4, 5, 6])
+        self.assertEqual(list(get_next_values(1, "reference")), [7])
+        self.assertEqual(list(get_next_values(0, "reference")), [])
+        self.assertEqual(
+            list(get_next_values(batch_size=2, sequence_name="reference")), [8, 9]
+        )
+        self.assertEqual(get_next_value("reference"), 10)
 
     def test_functions_reset_value_smaller_than_initial_value(self):
         with self.assertRaises(ValueError):
@@ -103,6 +113,15 @@ class SingleConnectionTestsMixin:
     def test_class_reset_value_smaller_than_initial_value(self):
         with self.assertRaises(ValueError):
             Sequence("error", initial_value=1, reset_value=1)
+
+    def test_class_batch(self):
+        reference_seq = Sequence("reference")
+        self.assertEqual(list(reference_seq.get_next_values(3)), [1, 2, 3])
+        self.assertEqual(list(reference_seq.get_next_values(3)), [4, 5, 6])
+        self.assertEqual(list(reference_seq.get_next_values(1)), [7])
+        self.assertEqual(list(reference_seq.get_next_values(0)), [])
+        self.assertEqual(list(reference_seq.get_next_values(batch_size=2)), [8, 9])
+        self.assertEqual(reference_seq.get_next_value(), 10)
 
 
 class SingleConnectionInAutocommitTests(
