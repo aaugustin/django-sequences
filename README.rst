@@ -365,7 +365,7 @@ date fragment in the sequence name. For example:
     get_next_value(f"prototocol-{timezone.now().year}")
 
 The above calls will result in separate sequences like ``books-2023-03-15``
-or ``protocol-2022``, respectively.
+or ``protocol-2024``, respectively.
 
 Database support
 ================
