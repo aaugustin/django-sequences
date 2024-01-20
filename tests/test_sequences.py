@@ -48,7 +48,7 @@ class SingleConnectionTestsMixin:
         self.assertEqual(get_next_value("reference", 1, 3), 2)
 
     def test_functions_reset_value_smaller_than_initial_value(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             get_next_value("error", initial_value=1, reset_value=1)
 
     def test_class_defaults(self):
@@ -101,7 +101,7 @@ class SingleConnectionTestsMixin:
         self.assertEqual(reference_seq.get_next_value(), 2)
 
     def test_class_reset_value_smaller_than_initial_value(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             Sequence("error", initial_value=1, reset_value=1)
 
 

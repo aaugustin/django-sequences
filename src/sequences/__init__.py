@@ -71,8 +71,8 @@ def get_next_value(
     # Inner import because models cannot be imported before their application.
     from .models import Sequence
 
-    if reset_value is not None:
-        assert initial_value < reset_value
+    if reset_value is not None and reset_value <= initial_value:
+        raise ValueError("reset_value must be greater than initial_value")
 
     if using is None:
         using = router.db_for_write(Sequence)
@@ -170,8 +170,8 @@ class Sequence:
         *,
         using=None,
     ):
-        if reset_value is not None:
-            assert initial_value < reset_value
+        if reset_value is not None and reset_value <= initial_value:
+            raise ValueError("reset_value must be greater than initial_value")
         self.sequence_name = sequence_name
         self.initial_value = initial_value
         self.reset_value = reset_value
