@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "django-sequences"
-version = "2.9"
+version = "3.0"
 description = "Generate gapless sequences of integer values."
 license = "BSD-3-Clause"
 authors = ["Aymeric Augustin <aymeric.augustin@m4x.org>"]
