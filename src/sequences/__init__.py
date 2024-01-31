@@ -56,14 +56,13 @@ def get_last_value(
     return None if result is None else result[0]
 
 
-def get_next_value(
-    sequence_name="default",
-    initial_value=1,
-    reset_value=None,
-    *,
-    nowait=False,
-    using=None,
-    increment=1,  # private API
+def _get_next_value(
+    sequence_name,
+    initial_value,
+    reset_value,
+    increment,
+    nowait,
+    using,
 ):
     """
     Return the next value for a sequence.
@@ -131,6 +130,28 @@ def get_next_value(
             return sequence.last
 
 
+def get_next_value(
+    sequence_name="default",
+    initial_value=1,
+    reset_value=None,
+    *,
+    nowait=False,
+    using=None,
+):
+    """
+    Return the next value for a sequence.
+
+    """
+    return _get_next_value(
+        sequence_name,
+        initial_value,
+        reset_value,
+        1,
+        nowait,
+        using,
+    )
+
+
 def get_next_values(
     batch_size,
     sequence_name="default",
@@ -139,12 +160,17 @@ def get_next_values(
     nowait=False,
     using=None,
 ):
-    next_value = get_next_value(
+    """
+    Return the next values for a sequence.
+
+    """
+    next_value = _get_next_value(
         sequence_name,
         initial_value + batch_size - 1,
-        nowait=nowait,
-        using=using,
-        increment=batch_size,
+        None,
+        batch_size,
+        nowait,
+        using,
     )
     return range(next_value - batch_size + 1, next_value + 1)
 
