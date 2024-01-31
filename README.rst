@@ -190,6 +190,42 @@ To sum up, the complete signature of ``get_next_value`` is:
         using=None,
     )
 
+``get_next_values``
+-------------------
+
+.. code:: pycon
+
+    >>> from sequences import get_next_values
+
+This function generates values in batch:
+
+.. code:: pycon
+
+    >>> get_next_values(10)
+    range(1, 11)
+    >>> get_next_values(10)
+    range(11, 21)
+
+As a reminder, you must save all these values to the database within the same
+transaction to benefit from the guarantees of django-sequences.
+
+``get_next_values`` supports the same arguments as ``get_next_value`` except
+``reset_value``.
+
+The complete signature of ``get_next_values`` is:
+
+.. code:: python
+
+    get_next_values(
+        batch_size,
+        sequence_name="default",
+        initial_value=1,
+        *,
+        nowait=False,
+        using=None,
+    )
+
+
 ``get_last_value``
 ------------------
 
@@ -290,7 +326,7 @@ The complete signature of ``delete`` is:
 (not to be confused with ``sequences.models.Sequence``, a private API)
 
 This class stores parameters for a sequence and provides ``get_next_value``,
-``get_last_value``, and ``delete`` methods:
+``get_next_values``, ``get_last_value``, and ``delete`` methods:
 
 .. code:: pycon
 
@@ -334,6 +370,13 @@ The complete API is:
         nowait=False,
     )
 
+    Sequence.get_next_values(
+        self,
+        batch_size,
+        *,
+        nowait=False,
+    )
+
     Sequence.get_last_value(
         self,
     )
@@ -343,7 +386,7 @@ The complete API is:
     )
 
 All parameters have the same meaning as in the ``get_next_value``,
-``get_last_value``, and ``delete`` functions.
+``get_last_values``, ``get_last_value``, and ``delete`` functions.
 
 Examples
 ========
@@ -499,6 +542,11 @@ Build and publish the new version:
 
 Changelog
 =========
+
+3.0
+---
+
+* Add the ``get_next_values`` function for generating values in batch.
 
 2.9
 ---
