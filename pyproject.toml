@@ -32,8 +32,8 @@ python = ">=3.8"
 
 [tool.poetry.dev-dependencies]
 black = "*"
-cx-Oracle = "*"
 mysqlclient = "*"
+oracledb = "*"
 psycopg2-binary = "*"
 ruff = "*"
 toml = "*"
