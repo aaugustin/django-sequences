@@ -68,7 +68,7 @@ Table of contents
 Getting started
 ===============
 
-django-sequences is tested with Django 4.2 (LTS), 5.0, 5.1, 5.2 (LTS), and 6.0.
+django-sequences is tested with Django 5.2 (LTS), 6.0, and 6.1.
 
 It is also tested with all database backends built-in to Django: MySQL/MariaDB,
 Oracle, PostgreSQL and SQLite.

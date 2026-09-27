@@ -11,14 +11,12 @@ authors = ["Aymeric Augustin <aymeric.augustin@m4x.org>"]
 readme = "README.rst"
 repository = "https://github.com/aaugustin/django-sequences"
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 6 - Mature",
     "Environment :: Web Environment",
     "Framework :: Django",
-    "Framework :: Django :: 4.2",
-    "Framework :: Django :: 5.0",
-    "Framework :: Django :: 5.1",
     "Framework :: Django :: 5.2",
     "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
 ]
@@ -27,8 +25,8 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-django = ">=4.2"
-python = ">=3.9"
+django = ">=5.2"
+python = ">=3.11"
 
 [tool.poetry.dev-dependencies]
 mysqlclient = "*"
