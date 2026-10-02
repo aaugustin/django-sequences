@@ -1,0 +1,24 @@
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: https://github.com/aaugustin/django-sequences/issues\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Sequences"
+msgstr "시퀀스"
+
+msgid "name"
+msgstr "이름"
+
+msgid "last value"
+msgstr "마지막 값"
+
+msgid "sequence"
+msgstr "시퀀스"
+
+msgid "sequences"
+msgstr "시퀀스"
+

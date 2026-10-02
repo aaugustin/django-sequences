@@ -1,0 +1,24 @@
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: https://github.com/aaugustin/django-sequences/issues\n"
+"Language: en_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Sequences"
+msgstr "Sequences"
+
+msgid "name"
+msgstr "name"
+
+msgid "last value"
+msgstr "last value"
+
+msgid "sequence"
+msgstr "sequence"
+
+msgid "sequences"
+msgstr "sequences"
+

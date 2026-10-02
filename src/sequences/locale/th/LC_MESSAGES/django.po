@@ -9,24 +9,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: apps.py:7
 msgid "Sequences"
 msgstr "ลำดับตัวเลข"
 
-#: models.py:8
 msgid "name"
-msgstr "สามัญนาม"
+msgstr "ชื่อ"
 
-#: models.py:14
 msgid "last value"
 msgstr "ค่าหลังสุด"
 
-#: models.py:18
 msgid "sequence"
 msgstr "ลำดับตัวเลข"
 
-#: models.py:19
 msgid "sequences"
 msgstr "ลำดับตัวเลข"
-
-

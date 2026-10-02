@@ -595,6 +595,11 @@ Stop the containers when done:
 Changelog
 =========
 
+3.1
+---
+
+* Add translations in all languages supported by Django.
+
 3.0
 ---
 

@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -17,22 +16,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: apps.py:7
 msgid "Sequences"
 msgstr "Diziler"
 
-#: models.py:8
 msgid "name"
 msgstr "isim"
 
-#: models.py:14
 msgid "last value"
 msgstr "son değer"
 
-#: models.py:18
 msgid "sequence"
 msgstr "dizi"
 
-#: models.py:19
 msgid "sequences"
 msgstr "diziler"

@@ -15,7 +15,7 @@ msgid "name"
 msgstr "namn"
 
 msgid "last value"
-msgstr "senast värde"
+msgstr "senaste värde"
 
 msgid "sequence"
 msgstr "sekvens"

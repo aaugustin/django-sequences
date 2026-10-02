@@ -1,0 +1,24 @@
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: https://github.com/aaugustin/django-sequences/issues\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Sequences"
+msgstr "Ketma-ketliklar"
+
+msgid "name"
+msgstr "nomi"
+
+msgid "last value"
+msgstr "oxirgi qiymat"
+
+msgid "sequence"
+msgstr "ketma-ketlik"
+
+msgid "sequences"
+msgstr "ketma-ketliklar"
+
