@@ -495,7 +495,8 @@ Prepare a development environment:
 
 Prepare testing databases:
 
-* Install PostgreSQL, MariaDB, and Oracle.
+* Install PostgreSQL, MariaDB, and Oracle. See below for how to run disposable
+  Docker containers for testing.
 * Create a database called ``sequences``, owned by a user called ``sequences``
   with password ``sequences``, with permissions to create a ``test_sequences``
   test database. You may override these values with environment variables; see
@@ -538,6 +539,58 @@ Build and publish the new version:
 
     $ poetry build
     $ poetry publish
+
+Running test databases
+======================
+
+Start disposable PostgreSQL, MariaDB, and Oracle Docker containers:
+
+.. code:: shell-session
+
+    $ docker run --detach --rm --name sequences-postgresql \
+        --env POSTGRES_USER=sequences --env POSTGRES_PASSWORD=sequences --env POSTGRES_DB=sequences \
+        --publish 127.0.0.1:15432:5432 postgres
+    $ docker run --detach --rm --name sequences-mysql \
+        --env MARIADB_ROOT_PASSWORD=Maria123 \
+        --env MARIADB_DATABASE=sequences --env MARIADB_USER=sequences --env MARIADB_PASSWORD=sequences \
+        --publish 127.0.0.1:13306:3306 mariadb
+    $ docker run --detach --rm --name sequences-oracle \
+        --publish 127.0.0.1:11521:1521 \
+        --env ORACLE_PASSWORD=Oracle123 \
+        --env APP_USER=sequences --env APP_USER_PASSWORD=sequences \
+        gvenzl/oracle-free:slim-faststart
+
+Set environment variables:
+
+.. code:: shell-session
+
+    $ export SEQUENCES_POSTGRESQL_PORT=15432
+    $ export SEQUENCES_MYSQL_PORT=13306
+    $ export SEQUENCES_ORACLE_NAME=127.0.0.1:11521/FREEPDB1
+
+Check that PostgreSQL, MariaDB, and Oracle are running:
+
+.. code:: shell-session
+
+    $ docker exec sequences-postgresql pg_isready
+    $ docker exec sequences-mysql mariadb-admin ping --user=root --password=Maria123
+    $ docker exec oracle-free healthcheck.sh && echo "Oracle is running"
+
+Grant privileges to create the test databases:
+
+    $ docker exec sequences-mysql mariadb --user=root --password=Maria123 --execute="GRANT ALL PRIVILEGES ON *.* TO 'sequences'@'%';"
+    $ docker exec --interactive oracle-free sqlplus 'sys/Oracle123@FREEPDB1 as sysdba'
+    SQL> GRANT DBA to sequences;
+
+Now you can run tests with ``make`` or ``tox``.
+
+Stop the containers when done:
+
+.. code:: shell-session
+
+    $ docker stop sequences-postgresql
+    $ docker stop sequences-mysql
+    $ docker stop sequences-oracle
 
 Changelog
 =========
