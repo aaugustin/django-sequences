@@ -31,7 +31,7 @@ python = ">=3.11"
 [tool.poetry.dev-dependencies]
 mysqlclient = "*"
 oracledb = "*"
-psycopg2-binary = "*"
+psycopg = "*"
 ruff = "*"
 toml = "*"
 
